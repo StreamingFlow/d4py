@@ -44,8 +44,7 @@ For installing for development with a conda environment, please run the followin
 5. `cd dispel4py`
 6. `pip install -r requirements.txt`
 7. `conda install -c conda-forge mpi4py mpich`
-8. `conda install -c conda-forge mpi4py mpich`
-9. `python setup.py install`
+8. `python setup.py install`
 
 
 ## Known Issues
