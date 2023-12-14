@@ -20,7 +20,6 @@ You will also need the following installed on your system:
 
 
 
-
 ## Installation
 
 In order to install dispel4py on your system:
@@ -49,9 +48,13 @@ For installing for development with a conda environment, please run the followin
 9. `python setup.py install`
 
 
+## Known Issues
+
+Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip). For those users, we do recommend to user our Docker container. See bellow:
+
 ## Docker
 
-The Dockerfile in the dispel4py root directory builds a Debian Linux distribution and installs dispel4py and OpenMPI.
+The Dockerfile in the dispel4py root directory installs dispel4py and OpenMPI.
 
 ```
 docker build . -t mydispel4py
