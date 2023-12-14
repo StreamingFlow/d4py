@@ -1,0 +1,59 @@
+[tool.ruff]
+# Enable the following linter rules:
+# E (pycodestyle) - PEP8 style conventions (indentation, whitespace, etc.)
+# F (Pyflakes) - Logical errors like unused imports, undeclared variables
+# B (flake8-bugbear) - Potential bugs and design issues beyond PEP 8
+# I (isort) - Proper sorting and grouping of import statements
+# UP (pyupgrade) - Upgrades to newer Python syntax and idioms
+# A (flake8-builtins) - Avoid conflicts with Python's built-in names
+# COM (flake8-commas) - Consistent comma usage, including trailing commas
+# C4 (flake8-comprehensions) - Prefer comprehensions for readability and efficiency
+# ISC001, ISC002 (flake8-implicit-str-concat) - Warns about implicit string concatenation
+# ICN (flake8-import-conventions) - Adherence to import conventions
+# G (flake8-logging-format) - Correct logging practices (formats, levels)
+# INP (flake8-no-pep420) - Avoid implicit namespace packages
+# PIE (flake8-pie) - Modern Python patterns
+# Q (flake8-quotes) - Consistent use of quotation marks in strings
+# RSE (flake8-raise) - Proper use of raise statements for exceptions
+# RET (flake8-return) - Clear and explicit return statements in functions
+# SIM (flake8-simplify) - Simplification of code for readability/performance
+# ARG (flake8-unused-arguments) - Detects unused function arguments
+# FIX (flake8-f1xme) - Marks F1XME/T0DO comments for review
+# PL (Pylint) - Code quality rules from pylint
+# TRY (tryceratops) - Best practices in using try/except blocks
+# FLY (flynt) - Convert concatentaion to f-strings
+# PERF (Perflint) - Potential performance issues detection
+# FURB (refurb) - Updating old python syntax to new standard
+# RUF (Ruff-specific rules) - Default ruleset
+select = ["E", "F", "B", "I", "UP",
+    "A", "COM", "C4", "ISC001", "ISC002",
+    "ICN", "G", "INP", "PIE", "Q", "RSE",
+    "RET", "SIM", "ARG",
+    "FIX", "PL", "TRY", "FLY", "PERF",
+    "FURB", "RUF"]
+# Enable these when I'm ready to face stronger demons:
+# ["ERA", "PTH", "SLF", "N"]
+# ERA - commented code
+# PTH - use new Path API instead of os.path (high effort due to there being a lot of it)
+# SLF - private member access
+# N - naming
+
+# 2. Avoid enforcing line-length violations (`E501`)
+# E402 (import not on top of file) Ignored for now
+# (ToDo: figure out what to do with it)
+# F405 (undefined or defined from star imports) ignored for now
+# (ToDo: is it related to dynamic imports?)
+# E265 - block comments
+# E226, E225 - missing whitespace around operator
+# F403 - undefined names
+ignore = ["E501", "E402", "F405", "E265", "E226", "F403", "E225"]
+
+# 3. Unfixable rules
+# ERA: Don't autoremove all commented code, I may actually need it
+unfixable = ["ERA"]
+
+# 4. Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+#[tool.ruff.per-file-ignores]
+#"__init__.py" = ["E402"]
+#"path/to/file.py" = ["E402"]
+#"**/{tests,docs,tools}/*" = ["E402"]
