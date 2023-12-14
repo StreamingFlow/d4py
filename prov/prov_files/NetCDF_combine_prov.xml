@@ -1,0 +1,536 @@
+<?xml version='1.0' encoding='ASCII'?>
+<prov:document xmlns:clipc="http://clipc.eu/ns/#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:knmi="http://knmi.nl/ns/#" xmlns:prov="http://www.w3.org/ns/prov#" xmlns:vcard="http://www.w3.org/2006/vcard/ns" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <prov:agent prov:id="knmi:andrej">
+    <prov:type xsi:type="xsd:string">provone:User</prov:type>
+    <vcard:uuid>andrej</vcard:uuid>
+  </prov:agent>
+  <prov:bundleContent xmlns:provone="http://vcvcomputing.com/provone/provone.owl#" xmlns:s-prov="http://s-prov/ns/#" prov:id="knmi:Bundle_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:andrej"/>
+    </prov:wasAssociatedWith>
+    <prov:activity prov:id="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:WFExecution</prov:type>
+    </prov:activity>
+    <prov:entity prov:id="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0">
+      <prov:type xsi:type="xsd:string">provone:Workflow</prov:type>
+    </prov:entity>
+    <prov:entity prov:id="knmi:Imp__COMBINE">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>COMBINE</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class '__main__.netcdfProvType'&gt;, &lt;class 'dispel4py.provenance.AccumulateFlow'&gt;, &lt;class '__main__.CombineWorkflow'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__COMBINE"/>
+      <prov:agent prov:ref="knmi:Component_COMBINE10_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__COMBINE"/>
+    </prov:hadMember>
+    <prov:entity prov:id="knmi:Imp__Collector">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>Collector</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class '__main__.netcdfProvType'&gt;, &lt;class '__main__.Read'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__Collector"/>
+      <prov:agent prov:ref="knmi:Component_Collector6_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__Collector"/>
+    </prov:hadMember>
+    <prov:entity prov:id="knmi:Imp__StoreFile">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>StoreFile</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class 'dispel4py.provenance.ProvenancePE'&gt;, &lt;class '__main__.Write'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__StoreFile"/>
+      <prov:agent prov:ref="knmi:Component_StoreFile11_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__StoreFile"/>
+    </prov:hadMember>
+    <prov:entity prov:id="knmi:Imp__ANALYSIS">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>ANALYSIS</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class '__main__.netcdfProvType'&gt;, &lt;class '__main__.Analysis'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__ANALYSIS"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS7_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__ANALYSIS"/>
+    </prov:hadMember>
+    <prov:entity prov:id="knmi:Imp__ANALYSIS2">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>ANALYSIS2</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class '__main__.netcdfProvType'&gt;, &lt;class '__main__.Analysis'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__ANALYSIS2"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS29_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__ANALYSIS2"/>
+    </prov:hadMember>
+    <prov:entity prov:id="knmi:Imp__Collector2">
+      <prov:type xsi:type="xsd:QName">s-prov:Implementation</prov:type>
+      <s-prov:functionName>Collector2</s-prov:functionName>
+      <s-prov:source>github://</s-prov:source>
+      <s-prov:type>(&lt;class '__main__.netcdfProvType'&gt;, &lt;class '__main__.Read'&gt;)</s-prov:type>
+    </prov:entity>
+    <prov:wasAttributedTo>
+      <prov:entity prov:ref="knmi:Imp__Collector2"/>
+      <prov:agent prov:ref="knmi:Component_Collector28_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAttributedTo>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+      <prov:entity prov:ref="knmi:Imp__Collector2"/>
+    </prov:hadMember>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:WF_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865_0"/>
+    </prov:wasAssociatedWith>
+    <prov:activity prov:id="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865">
+      <prov:startTime>2017-11-03T11:24:17.391327</prov:startTime>
+      <prov:endTime>2017-11-03T11:24:17.393409</prov:endTime>
+    </prov:activity>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:ComponentInstance_COMBINE-Instance--orfeus-as-91078-872ca5b5-c089-11e7-ac39-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:agent prov:id="knmi:ComponentInstance_COMBINE-Instance--orfeus-as-91078-872ca5b5-c089-11e7-ac39-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentInstance</prov:type>
+      <s-prov:pid>91078</s-prov:pid>
+      <s-prov:worker>orfeus-as</s-prov:worker>
+    </prov:agent>
+    <prov:actedOnBehalfOf>
+      <prov:delegate prov:ref="knmi:ComponentInstance_COMBINE-Instance--orfeus-as-91078-872ca5b5-c089-11e7-ac39-f45c89acf865"/>
+      <prov:responsible prov:ref="knmi:Component_COMBINE10_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:actedOnBehalfOf>
+    <prov:agent prov:id="knmi:Component_COMBINE10_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:Component</prov:type>
+      <s-prov:functionName>COMBINE</s-prov:functionName>
+    </prov:agent>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_COMBINE10_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_COMBINE10_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:entity prov:id="knmi:CPar_COMBINE-Instance--orfeus-as-91078-872ca5b5-c089-11e7-ac39-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentParameters</prov:type>
+      <knmi:wf>paramC</knmi:wf>
+    </prov:entity>
+    <prov:used prov:id="knmi:used_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:CPar_COMBINE-Instance--orfeus-as-91078-872ca5b5-c089-11e7-ac39-f45c89acf865"/>
+    </prov:used>
+    <prov:used prov:id="knmi:used_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865_8752dfc2-c089-11e7-b9b6-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:Data_8752dfc2-c089-11e7-b9b6-f45c89acf865"/>
+    </prov:used>
+    <prov:used prov:id="knmi:used_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865_8777a1cc-c089-11e7-b6d3-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:Data_8777a1cc-c089-11e7-b6d3-f45c89acf865"/>
+    </prov:used>
+    <prov:collection prov:id="knmi:Data_87780c8f-c089-11e7-96b0-f45c89acf865">
+      <prov:location xsi:type="xsd:string"></prov:location>
+      <prov:type xsi:type="xsd:QName">s-prov:Data</prov:type>
+      <provone:outPort>combo</provone:outPort>
+      <s-prov:annotations>[]</s-prov:annotations>
+      <s-prov:format></s-prov:format>
+      <s-prov:id>87780c8f-c089-11e7-96b0-f45c89acf865</s-prov:id>
+      <s-prov:size>0</s-prov:size>
+    </prov:collection>
+    <prov:wasGeneratedBy prov:id="knmi:wgb_87780c8f-c089-11e7-96b0-f45c89acf865">
+      <prov:entity prov:ref="knmi:Data_87780c8f-c089-11e7-96b0-f45c89acf865"/>
+      <prov:activity prov:ref="knmi:Invocation_COMBINE-orfeus-as-91078-8777bd05-c089-11e7-ad05-f45c89acf865"/>
+    </prov:wasGeneratedBy>
+    <prov:entity prov:id="knmi:DataGranule_87780c8f-c089-11e7-96b0-f45c89acf865_0">
+      <prov:type xsi:type="xsd:QName">s-prov:DataGranule</prov:type>
+      <clipc:SWE__ChunkSize>[  1 721 721]</clipc:SWE__ChunkSize>
+      <clipc:SWE_grid_mapping>lambert_azimuthal_equal_a</clipc:SWE_grid_mapping>
+      <clipc:SWE_long_name>Snow Water Equivalent</clipc:SWE_long_name>
+      <clipc:SWE_standard_name>lwe_thickness_of_surface_</clipc:SWE_standard_name>
+      <clipc:SWE_units>mm</clipc:SWE_units>
+      <clipc:lambert_azimuthal_equal_area_GeoTransform>-9036842.762 25067.525 0 </clipc:lambert_azimuthal_equal_area_GeoTransform>
+      <clipc:lambert_azimuthal_equal_area_false_easting xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_easting>
+      <clipc:lambert_azimuthal_equal_area_false_northing xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_northing>
+      <clipc:lambert_azimuthal_equal_area_grid_mapping_name>lambert_azimuthal_equal_a</clipc:lambert_azimuthal_equal_area_grid_mapping_name>
+      <clipc:lambert_azimuthal_equal_area_inverse_flattening xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_inverse_flattening>
+      <clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin xsi:type="xsd:double">90.0</clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_semi_major_axis xsi:type="xsd:double">6371228.0</clipc:lambert_azimuthal_equal_area_semi_major_axis>
+      <clipc:lambert_azimuthal_equal_area_spatial_ref>PROJCS["NSIDC EASE-Grid N</clipc:lambert_azimuthal_equal_area_spatial_ref>
+      <clipc:lat_grid_mapping>lambert_azimuthal_equal_a</clipc:lat_grid_mapping>
+      <clipc:lat_long_name>WGS84 latitude coordinate</clipc:lat_long_name>
+      <clipc:lat_units>degrees</clipc:lat_units>
+      <clipc:lon_grid_mapping>lambert_azimuthal_equal_a</clipc:lon_grid_mapping>
+      <clipc:lon_long_name>WGS84 longitude coordinat</clipc:lon_long_name>
+      <clipc:lon_units>degrees</clipc:lon_units>
+      <clipc:time_bnds__ChunkSize>[1 2]</clipc:time_bnds__ChunkSize>
+      <clipc:time_bnds_comment>Contains the start and en</clipc:time_bnds_comment>
+      <clipc:time_bnds_long_name>Time cell boundaries</clipc:time_bnds_long_name>
+      <knmi:Dimensions>{u'y': 721, u'x': 721, u'bnds': 2, u'time': 12}</knmi:Dimensions>
+      <knmi:Type>&lt;class 'xarray.core.dataset.Dataset'&gt;</knmi:Type>
+    </prov:entity>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:Data_87780c8f-c089-11e7-96b0-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:DataGranule_87780c8f-c089-11e7-96b0-f45c89acf865_0"/>
+    </prov:hadMember>
+    <prov:activity prov:id="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865">
+      <prov:startTime>2017-11-03T11:24:17.148345</prov:startTime>
+      <prov:endTime>2017-11-03T11:24:17.149780</prov:endTime>
+    </prov:activity>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:ComponentInstance_ANALYSIS-Instance--orfeus-as-91078-872ca166-c089-11e7-8a9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:agent prov:id="knmi:ComponentInstance_ANALYSIS-Instance--orfeus-as-91078-872ca166-c089-11e7-8a9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentInstance</prov:type>
+      <s-prov:pid>91078</s-prov:pid>
+      <s-prov:worker>orfeus-as</s-prov:worker>
+    </prov:agent>
+    <prov:actedOnBehalfOf>
+      <prov:delegate prov:ref="knmi:ComponentInstance_ANALYSIS-Instance--orfeus-as-91078-872ca166-c089-11e7-8a9b-f45c89acf865"/>
+      <prov:responsible prov:ref="knmi:Component_ANALYSIS7_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:actedOnBehalfOf>
+    <prov:agent prov:id="knmi:Component_ANALYSIS7_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:Component</prov:type>
+      <s-prov:functionName>ANALYSIS</s-prov:functionName>
+    </prov:agent>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS7_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS7_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:entity prov:id="knmi:CPar_ANALYSIS-Instance--orfeus-as-91078-872ca166-c089-11e7-8a9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentParameters</prov:type>
+      <knmi:filter xsi:type="xsd:int">10</knmi:filter>
+    </prov:entity>
+    <prov:used prov:id="knmi:used_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:CPar_ANALYSIS-Instance--orfeus-as-91078-872ca166-c089-11e7-8a9b-f45c89acf865"/>
+    </prov:used>
+    <prov:used prov:id="knmi:used_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865_875296c0-c089-11e7-9e34-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:Data_875296c0-c089-11e7-9e34-f45c89acf865"/>
+    </prov:used>
+    <prov:collection prov:id="knmi:Data_8752dfc2-c089-11e7-b9b6-f45c89acf865">
+      <prov:location xsi:type="xsd:string"></prov:location>
+      <prov:type xsi:type="xsd:QName">s-prov:Data</prov:type>
+      <provone:outPort>output</provone:outPort>
+      <s-prov:annotations>[]</s-prov:annotations>
+      <s-prov:format></s-prov:format>
+      <s-prov:id>8752dfc2-c089-11e7-b9b6-f45c89acf865</s-prov:id>
+      <s-prov:size>0</s-prov:size>
+    </prov:collection>
+    <prov:wasGeneratedBy prov:id="knmi:wgb_8752dfc2-c089-11e7-b9b6-f45c89acf865">
+      <prov:entity prov:ref="knmi:Data_8752dfc2-c089-11e7-b9b6-f45c89acf865"/>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS-orfeus-as-91078-8752a99e-c089-11e7-a04c-f45c89acf865"/>
+    </prov:wasGeneratedBy>
+    <prov:entity prov:id="knmi:DataGranule_8752dfc2-c089-11e7-b9b6-f45c89acf865_0">
+      <prov:type xsi:type="xsd:QName">s-prov:DataGranule</prov:type>
+      <clipc:SWE__ChunkSize>[  1 721 721]</clipc:SWE__ChunkSize>
+      <clipc:SWE_grid_mapping>lambert_azimuthal_equal_a</clipc:SWE_grid_mapping>
+      <clipc:SWE_long_name>Snow Water Equivalent</clipc:SWE_long_name>
+      <clipc:SWE_standard_name>lwe_thickness_of_surface_</clipc:SWE_standard_name>
+      <clipc:SWE_units>mm</clipc:SWE_units>
+      <clipc:lambert_azimuthal_equal_area_GeoTransform>-9036842.762 25067.525 0 </clipc:lambert_azimuthal_equal_area_GeoTransform>
+      <clipc:lambert_azimuthal_equal_area_false_easting xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_easting>
+      <clipc:lambert_azimuthal_equal_area_false_northing xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_northing>
+      <clipc:lambert_azimuthal_equal_area_grid_mapping_name>lambert_azimuthal_equal_a</clipc:lambert_azimuthal_equal_area_grid_mapping_name>
+      <clipc:lambert_azimuthal_equal_area_inverse_flattening xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_inverse_flattening>
+      <clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin xsi:type="xsd:double">90.0</clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_semi_major_axis xsi:type="xsd:double">6371228.0</clipc:lambert_azimuthal_equal_area_semi_major_axis>
+      <clipc:lambert_azimuthal_equal_area_spatial_ref>PROJCS["NSIDC EASE-Grid N</clipc:lambert_azimuthal_equal_area_spatial_ref>
+      <clipc:lat_grid_mapping>lambert_azimuthal_equal_a</clipc:lat_grid_mapping>
+      <clipc:lat_long_name>WGS84 latitude coordinate</clipc:lat_long_name>
+      <clipc:lat_units>degrees</clipc:lat_units>
+      <clipc:lon_grid_mapping>lambert_azimuthal_equal_a</clipc:lon_grid_mapping>
+      <clipc:lon_long_name>WGS84 longitude coordinat</clipc:lon_long_name>
+      <clipc:lon_units>degrees</clipc:lon_units>
+      <clipc:time_bnds__ChunkSize>[1 2]</clipc:time_bnds__ChunkSize>
+      <clipc:time_bnds_comment>Contains the start and en</clipc:time_bnds_comment>
+      <clipc:time_bnds_long_name>Time cell boundaries</clipc:time_bnds_long_name>
+      <knmi:Dimensions>{u'y': 721, u'x': 721, u'bnds': 2, u'time': 12}</knmi:Dimensions>
+      <knmi:Type>&lt;class 'xarray.core.dataset.Dataset'&gt;</knmi:Type>
+    </prov:entity>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:Data_8752dfc2-c089-11e7-b9b6-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:DataGranule_8752dfc2-c089-11e7-b9b6-f45c89acf865_0"/>
+    </prov:hadMember>
+    <prov:activity prov:id="knmi:Invocation_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865">
+      <prov:startTime>2017-11-03T11:24:17.022328</prov:startTime>
+      <prov:endTime>2017-11-03T11:24:17.147912</prov:endTime>
+    </prov:activity>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:ComponentInstance_Collector-Instance--orfeus-as-91078-872c9a38-c089-11e7-8f85-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:agent prov:id="knmi:ComponentInstance_Collector-Instance--orfeus-as-91078-872c9a38-c089-11e7-8f85-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentInstance</prov:type>
+      <s-prov:pid>91078</s-prov:pid>
+      <s-prov:worker>orfeus-as</s-prov:worker>
+    </prov:agent>
+    <prov:actedOnBehalfOf>
+      <prov:delegate prov:ref="knmi:ComponentInstance_Collector-Instance--orfeus-as-91078-872c9a38-c089-11e7-8f85-f45c89acf865"/>
+      <prov:responsible prov:ref="knmi:Component_Collector6_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:actedOnBehalfOf>
+    <prov:agent prov:id="knmi:Component_Collector6_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:Component</prov:type>
+      <s-prov:functionName>Collector</s-prov:functionName>
+    </prov:agent>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_Collector6_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_Collector6_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:entity prov:id="knmi:CPar_Collector-Instance--orfeus-as-91078-872c9a38-c089-11e7-8f85-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentParameters</prov:type>
+    </prov:entity>
+    <prov:used prov:id="knmi:used_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:CPar_Collector-Instance--orfeus-as-91078-872c9a38-c089-11e7-8f85-f45c89acf865"/>
+    </prov:used>
+    <prov:collection prov:id="knmi:Data_875296c0-c089-11e7-9e34-f45c89acf865">
+      <prov:location xsi:type="xsd:string">http://opendap.knmi.nl/knmi/thredds/dodsC/CLIPC/cmcc/SWE/SWE_ophidia-0-10-1_CMCC_GlobSnow-SWE-L3B_monClim_19791001-20080701_1979-2008.nc</prov:location>
+      <prov:type xsi:type="xsd:QName">s-prov:Data</prov:type>
+      <provone:outPort>xarray</provone:outPort>
+      <s-prov:annotations>[]</s-prov:annotations>
+      <s-prov:format></s-prov:format>
+      <s-prov:id>875296c0-c089-11e7-9e34-f45c89acf865</s-prov:id>
+      <s-prov:size>0</s-prov:size>
+    </prov:collection>
+    <prov:wasGeneratedBy prov:id="knmi:wgb_875296c0-c089-11e7-9e34-f45c89acf865">
+      <prov:entity prov:ref="knmi:Data_875296c0-c089-11e7-9e34-f45c89acf865"/>
+      <prov:activity prov:ref="knmi:Invocation_Collector-orfeus-as-91078-873f7017-c089-11e7-b72f-f45c89acf865"/>
+    </prov:wasGeneratedBy>
+    <prov:entity prov:id="knmi:DataGranule_875296c0-c089-11e7-9e34-f45c89acf865_0">
+      <prov:type xsi:type="xsd:QName">s-prov:DataGranule</prov:type>
+      <clipc:SWE__ChunkSize>[  1 721 721]</clipc:SWE__ChunkSize>
+      <clipc:SWE_grid_mapping>lambert_azimuthal_equal_a</clipc:SWE_grid_mapping>
+      <clipc:SWE_long_name>Snow Water Equivalent</clipc:SWE_long_name>
+      <clipc:SWE_standard_name>lwe_thickness_of_surface_</clipc:SWE_standard_name>
+      <clipc:SWE_units>mm</clipc:SWE_units>
+      <clipc:lambert_azimuthal_equal_area_GeoTransform>-9036842.762 25067.525 0 </clipc:lambert_azimuthal_equal_area_GeoTransform>
+      <clipc:lambert_azimuthal_equal_area_false_easting xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_easting>
+      <clipc:lambert_azimuthal_equal_area_false_northing xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_northing>
+      <clipc:lambert_azimuthal_equal_area_grid_mapping_name>lambert_azimuthal_equal_a</clipc:lambert_azimuthal_equal_area_grid_mapping_name>
+      <clipc:lambert_azimuthal_equal_area_inverse_flattening xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_inverse_flattening>
+      <clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin xsi:type="xsd:double">90.0</clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_semi_major_axis xsi:type="xsd:double">6371228.0</clipc:lambert_azimuthal_equal_area_semi_major_axis>
+      <clipc:lambert_azimuthal_equal_area_spatial_ref>PROJCS["NSIDC EASE-Grid N</clipc:lambert_azimuthal_equal_area_spatial_ref>
+      <clipc:lat_grid_mapping>lambert_azimuthal_equal_a</clipc:lat_grid_mapping>
+      <clipc:lat_long_name>WGS84 latitude coordinate</clipc:lat_long_name>
+      <clipc:lat_units>degrees</clipc:lat_units>
+      <clipc:lon_grid_mapping>lambert_azimuthal_equal_a</clipc:lon_grid_mapping>
+      <clipc:lon_long_name>WGS84 longitude coordinat</clipc:lon_long_name>
+      <clipc:lon_units>degrees</clipc:lon_units>
+      <clipc:time_bnds__ChunkSize>[1 2]</clipc:time_bnds__ChunkSize>
+      <clipc:time_bnds_comment>Contains the start and en</clipc:time_bnds_comment>
+      <clipc:time_bnds_long_name>Time cell boundaries</clipc:time_bnds_long_name>
+      <knmi:Dimensions>{u'y': 721, u'x': 721, u'bnds': 2, u'time': 12}</knmi:Dimensions>
+      <knmi:Type>&lt;class 'xarray.core.dataset.Dataset'&gt;</knmi:Type>
+    </prov:entity>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:Data_875296c0-c089-11e7-9e34-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:DataGranule_875296c0-c089-11e7-9e34-f45c89acf865_0"/>
+    </prov:hadMember>
+    <prov:activity prov:id="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865">
+      <prov:startTime>2017-11-03T11:24:17.389576</prov:startTime>
+      <prov:endTime>2017-11-03T11:24:17.390706</prov:endTime>
+    </prov:activity>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:ComponentInstance_ANALYSIS2-Instance--orfeus-as-91078-872ca4ba-c089-11e7-a6ba-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:agent prov:id="knmi:ComponentInstance_ANALYSIS2-Instance--orfeus-as-91078-872ca4ba-c089-11e7-a6ba-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentInstance</prov:type>
+      <s-prov:pid>91078</s-prov:pid>
+      <s-prov:worker>orfeus-as</s-prov:worker>
+    </prov:agent>
+    <prov:actedOnBehalfOf>
+      <prov:delegate prov:ref="knmi:ComponentInstance_ANALYSIS2-Instance--orfeus-as-91078-872ca4ba-c089-11e7-a6ba-f45c89acf865"/>
+      <prov:responsible prov:ref="knmi:Component_ANALYSIS29_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:actedOnBehalfOf>
+    <prov:agent prov:id="knmi:Component_ANALYSIS29_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:Component</prov:type>
+      <s-prov:functionName>ANALYSIS2</s-prov:functionName>
+    </prov:agent>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS29_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_ANALYSIS29_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:entity prov:id="knmi:CPar_ANALYSIS2-Instance--orfeus-as-91078-872ca4ba-c089-11e7-a6ba-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentParameters</prov:type>
+      <knmi:filter xsi:type="xsd:int">13</knmi:filter>
+    </prov:entity>
+    <prov:used prov:id="knmi:used_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:CPar_ANALYSIS2-Instance--orfeus-as-91078-872ca4ba-c089-11e7-a6ba-f45c89acf865"/>
+    </prov:used>
+    <prov:used prov:id="knmi:used_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865_8777657d-c089-11e7-a424-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:Data_8777657d-c089-11e7-a424-f45c89acf865"/>
+    </prov:used>
+    <prov:collection prov:id="knmi:Data_8777a1cc-c089-11e7-b6d3-f45c89acf865">
+      <prov:location xsi:type="xsd:string"></prov:location>
+      <prov:type xsi:type="xsd:QName">s-prov:Data</prov:type>
+      <provone:outPort>output</provone:outPort>
+      <s-prov:annotations>[]</s-prov:annotations>
+      <s-prov:format></s-prov:format>
+      <s-prov:id>8777a1cc-c089-11e7-b6d3-f45c89acf865</s-prov:id>
+      <s-prov:size>0</s-prov:size>
+    </prov:collection>
+    <prov:wasGeneratedBy prov:id="knmi:wgb_8777a1cc-c089-11e7-b6d3-f45c89acf865">
+      <prov:entity prov:ref="knmi:Data_8777a1cc-c089-11e7-b6d3-f45c89acf865"/>
+      <prov:activity prov:ref="knmi:Invocation_ANALYSIS2-orfeus-as-91078-877778b3-c089-11e7-84a0-f45c89acf865"/>
+    </prov:wasGeneratedBy>
+    <prov:entity prov:id="knmi:DataGranule_8777a1cc-c089-11e7-b6d3-f45c89acf865_0">
+      <prov:type xsi:type="xsd:QName">s-prov:DataGranule</prov:type>
+      <clipc:SWE__ChunkSize>[  1 721 721]</clipc:SWE__ChunkSize>
+      <clipc:SWE_grid_mapping>lambert_azimuthal_equal_a</clipc:SWE_grid_mapping>
+      <clipc:SWE_long_name>Snow Water Equivalent</clipc:SWE_long_name>
+      <clipc:SWE_standard_name>lwe_thickness_of_surface_</clipc:SWE_standard_name>
+      <clipc:SWE_units>mm</clipc:SWE_units>
+      <clipc:lambert_azimuthal_equal_area_GeoTransform>-9036842.762 25067.525 0 </clipc:lambert_azimuthal_equal_area_GeoTransform>
+      <clipc:lambert_azimuthal_equal_area_false_easting xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_easting>
+      <clipc:lambert_azimuthal_equal_area_false_northing xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_northing>
+      <clipc:lambert_azimuthal_equal_area_grid_mapping_name>lambert_azimuthal_equal_a</clipc:lambert_azimuthal_equal_area_grid_mapping_name>
+      <clipc:lambert_azimuthal_equal_area_inverse_flattening xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_inverse_flattening>
+      <clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin xsi:type="xsd:double">90.0</clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_semi_major_axis xsi:type="xsd:double">6371228.0</clipc:lambert_azimuthal_equal_area_semi_major_axis>
+      <clipc:lambert_azimuthal_equal_area_spatial_ref>PROJCS["NSIDC EASE-Grid N</clipc:lambert_azimuthal_equal_area_spatial_ref>
+      <clipc:lat_grid_mapping>lambert_azimuthal_equal_a</clipc:lat_grid_mapping>
+      <clipc:lat_long_name>WGS84 latitude coordinate</clipc:lat_long_name>
+      <clipc:lat_units>degrees</clipc:lat_units>
+      <clipc:lon_grid_mapping>lambert_azimuthal_equal_a</clipc:lon_grid_mapping>
+      <clipc:lon_long_name>WGS84 longitude coordinat</clipc:lon_long_name>
+      <clipc:lon_units>degrees</clipc:lon_units>
+      <clipc:time_bnds__ChunkSize>[1 2]</clipc:time_bnds__ChunkSize>
+      <clipc:time_bnds_comment>Contains the start and en</clipc:time_bnds_comment>
+      <clipc:time_bnds_long_name>Time cell boundaries</clipc:time_bnds_long_name>
+      <knmi:Dimensions>{u'y': 721, u'x': 721, u'bnds': 2, u'time': 12}</knmi:Dimensions>
+      <knmi:Type>&lt;class 'xarray.core.dataset.Dataset'&gt;</knmi:Type>
+    </prov:entity>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:Data_8777a1cc-c089-11e7-b6d3-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:DataGranule_8777a1cc-c089-11e7-b6d3-f45c89acf865_0"/>
+    </prov:hadMember>
+    <prov:activity prov:id="knmi:Invocation_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865">
+      <prov:startTime>2017-11-03T11:24:17.273190</prov:startTime>
+      <prov:endTime>2017-11-03T11:24:17.389143</prov:endTime>
+    </prov:activity>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:ComponentInstance_Collector2-Instance--orfeus-as-91078-872ca36e-c089-11e7-aca7-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:agent prov:id="knmi:ComponentInstance_Collector2-Instance--orfeus-as-91078-872ca36e-c089-11e7-aca7-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentInstance</prov:type>
+      <s-prov:pid>91078</s-prov:pid>
+      <s-prov:worker>orfeus-as</s-prov:worker>
+    </prov:agent>
+    <prov:actedOnBehalfOf>
+      <prov:delegate prov:ref="knmi:ComponentInstance_Collector2-Instance--orfeus-as-91078-872ca36e-c089-11e7-aca7-f45c89acf865"/>
+      <prov:responsible prov:ref="knmi:Component_Collector28_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:actedOnBehalfOf>
+    <prov:agent prov:id="knmi:Component_Collector28_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:Component</prov:type>
+      <s-prov:functionName>Collector2</s-prov:functionName>
+    </prov:agent>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_Collector28_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:wasAssociatedWith>
+      <prov:activity prov:ref="knmi:Invocation_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865"/>
+      <prov:agent prov:ref="knmi:Component_Collector28_JUP_SIMPLE_orfeus-as-91078-86f83982-c089-11e7-8b9b-f45c89acf865"/>
+    </prov:wasAssociatedWith>
+    <prov:entity prov:id="knmi:CPar_Collector2-Instance--orfeus-as-91078-872ca36e-c089-11e7-aca7-f45c89acf865">
+      <prov:type xsi:type="xsd:QName">s-prov:ComponentParameters</prov:type>
+    </prov:entity>
+    <prov:used prov:id="knmi:used_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865">
+      <prov:activity prov:ref="knmi:Invocation_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:CPar_Collector2-Instance--orfeus-as-91078-872ca36e-c089-11e7-aca7-f45c89acf865"/>
+    </prov:used>
+    <prov:collection prov:id="knmi:Data_8777657d-c089-11e7-a424-f45c89acf865">
+      <prov:location xsi:type="xsd:string">http://opendap.knmi.nl/knmi/thredds/dodsC/CLIPC/cmcc/SWE/SWE_ophidia-0-10-1_CMCC_GlobSnow-SWE-L3B_monClim_19791001-20080701_1979-2008.nc</prov:location>
+      <prov:type xsi:type="xsd:QName">s-prov:Data</prov:type>
+      <provone:outPort>xarray</provone:outPort>
+      <s-prov:annotations>[]</s-prov:annotations>
+      <s-prov:format></s-prov:format>
+      <s-prov:id>8777657d-c089-11e7-a424-f45c89acf865</s-prov:id>
+      <s-prov:size>0</s-prov:size>
+    </prov:collection>
+    <prov:wasGeneratedBy prov:id="knmi:wgb_8777657d-c089-11e7-a424-f45c89acf865">
+      <prov:entity prov:ref="knmi:Data_8777657d-c089-11e7-a424-f45c89acf865"/>
+      <prov:activity prov:ref="knmi:Invocation_Collector2-orfeus-as-91078-8765b728-c089-11e7-943e-f45c89acf865"/>
+    </prov:wasGeneratedBy>
+    <prov:entity prov:id="knmi:DataGranule_8777657d-c089-11e7-a424-f45c89acf865_0">
+      <prov:type xsi:type="xsd:QName">s-prov:DataGranule</prov:type>
+      <clipc:SWE__ChunkSize>[  1 721 721]</clipc:SWE__ChunkSize>
+      <clipc:SWE_grid_mapping>lambert_azimuthal_equal_a</clipc:SWE_grid_mapping>
+      <clipc:SWE_long_name>Snow Water Equivalent</clipc:SWE_long_name>
+      <clipc:SWE_standard_name>lwe_thickness_of_surface_</clipc:SWE_standard_name>
+      <clipc:SWE_units>mm</clipc:SWE_units>
+      <clipc:lambert_azimuthal_equal_area_GeoTransform>-9036842.762 25067.525 0 </clipc:lambert_azimuthal_equal_area_GeoTransform>
+      <clipc:lambert_azimuthal_equal_area_false_easting xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_easting>
+      <clipc:lambert_azimuthal_equal_area_false_northing xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_false_northing>
+      <clipc:lambert_azimuthal_equal_area_grid_mapping_name>lambert_azimuthal_equal_a</clipc:lambert_azimuthal_equal_area_grid_mapping_name>
+      <clipc:lambert_azimuthal_equal_area_inverse_flattening xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_inverse_flattening>
+      <clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin xsi:type="xsd:double">90.0</clipc:lambert_azimuthal_equal_area_latitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_prime_meridian>
+      <clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin xsi:type="xsd:double">0.0</clipc:lambert_azimuthal_equal_area_longitude_of_projection_origin>
+      <clipc:lambert_azimuthal_equal_area_semi_major_axis xsi:type="xsd:double">6371228.0</clipc:lambert_azimuthal_equal_area_semi_major_axis>
+      <clipc:lambert_azimuthal_equal_area_spatial_ref>PROJCS["NSIDC EASE-Grid N</clipc:lambert_azimuthal_equal_area_spatial_ref>
+      <clipc:lat_grid_mapping>lambert_azimuthal_equal_a</clipc:lat_grid_mapping>
+      <clipc:lat_long_name>WGS84 latitude coordinate</clipc:lat_long_name>
+      <clipc:lat_units>degrees</clipc:lat_units>
+      <clipc:lon_grid_mapping>lambert_azimuthal_equal_a</clipc:lon_grid_mapping>
+      <clipc:lon_long_name>WGS84 longitude coordinat</clipc:lon_long_name>
+      <clipc:lon_units>degrees</clipc:lon_units>
+      <clipc:time_bnds__ChunkSize>[1 2]</clipc:time_bnds__ChunkSize>
+      <clipc:time_bnds_comment>Contains the start and en</clipc:time_bnds_comment>
+      <clipc:time_bnds_long_name>Time cell boundaries</clipc:time_bnds_long_name>
+      <knmi:Dimensions>{u'y': 721, u'x': 721, u'bnds': 2, u'time': 12}</knmi:Dimensions>
+      <knmi:Type>&lt;class 'xarray.core.dataset.Dataset'&gt;</knmi:Type>
+    </prov:entity>
+    <prov:hadMember>
+      <prov:collection prov:ref="knmi:Data_8777657d-c089-11e7-a424-f45c89acf865"/>
+      <prov:entity prov:ref="knmi:DataGranule_8777657d-c089-11e7-a424-f45c89acf865_0"/>
+    </prov:hadMember>
+  </prov:bundleContent>
+</prov:document>
