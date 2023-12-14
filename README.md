@@ -111,3 +111,9 @@ Note: In another tab, we need to have REDIS working in background:
 ```shell
 redis-server
 ```
+
+## Google Colab Testing
+
+Notebook for [testing_dispel4py2.0 in Google Col](https://colab.research.google.com/drive/1rSkwBgu42YG3o2AAHweVkJPuqVZF62te?usp=sharing)
+
+
