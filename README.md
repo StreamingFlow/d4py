@@ -119,10 +119,13 @@ https://github.com/rosafilgueira/dispel4py_workflows
 
 ### Pipeline_test
 
+For each mapping we have always two options: either to use the `dispel4py` command ; or use `python -m` command. 
+
 ##### Simple mapping
 ```shell
 dispel4py simple dispel4py.examples.graph_testing.pipeline_test -i 10 
 ```
+OR 
 
 ```shell
 python -m dispel4py.new.processor dispel4py.new.simple_process dispel4py.examples.graph_testing.pipeline_test -i 10
@@ -132,6 +135,8 @@ python -m dispel4py.new.processor dispel4py.new.simple_process dispel4py.example
 ```shell
 dispel4py multi dispel4py.examples.graph_testing.pipeline_test -i 10 -n 6
 ```
+OR 
+
 ```shell
 python -m dispel4py.new.processor dispel4py.new.multi_process dispel4py.examples.graph_testing.pipeline_test -i 10 -n 6
 ```
@@ -140,6 +145,7 @@ python -m dispel4py.new.processor dispel4py.new.multi_process dispel4py.examples
 ```shell
 mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20 -n 10
 ```
+OR 
 
 ```shell
 mpiexec -n 10 python -m dispel4py.new.processor dispel4py.new.mpi_process dispel4py.examples.graph_testing.pipeline_test -i 20 -n 10
@@ -161,6 +167,13 @@ redis-server
 ```
 
 Tab 2 
+
+```shell
+dispel4py redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
+```
+
+OR
+
 ```shell
 python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
 ```
