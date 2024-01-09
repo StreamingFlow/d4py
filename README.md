@@ -156,7 +156,6 @@ Note: In another tab, we need to have REDIS working in background:
 ```shell
 redis-server
 ```
-:
 ```shell
 python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
 ```
