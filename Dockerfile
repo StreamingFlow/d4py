@@ -32,6 +32,5 @@ RUN pip install jupyter numpy networkx flake8 redis==4.4.2
 RUN pip install mpi4py
 
 # Clone and install dispel4py from the specific Git repository
-RUN git clone https://github.com/StreamingFlow/d4py.git && \
-    cd dispel4py && python setup.py install
-
+RUN git clone https://github.com/StreamingFlow/d4py.git 
+RUN cd d4py && python setup.py install
