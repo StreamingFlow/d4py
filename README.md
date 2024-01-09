@@ -50,7 +50,16 @@ For installing for development with a conda environment, please run the followin
 
 ### Known Issues
 
-1. Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip). For those users, we do recommend to user our Docker container.
+1. Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip).See bellow:
+
+
+```
+File "/Users/...../anaconda3/envs/py310/lib/python3.10/multiprocessing/spawn.py", line 126, in _main
+    self = reduction.pickle.load(from_parent)
+AttributeError: 'TestProducer' object has no attribute 'simple_logger'
+```
+
+For those users, we do recommend to user our Docker container.
 
 2. You might have to use the following command to install mpi in your MacOS laptop:
 ```
