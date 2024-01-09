@@ -170,13 +170,13 @@ mpiexec -n 10 --allow-run-as-root --oversubscribe  dispel4py mpi dispel4py.examp
 
 Note: In another tab, we need to have REDIS working in background:
 
-Tab 1: 
+In Tab 1: 
 
 ```shell
 redis-server
 ```
 
-Tab 2 
+In Tab 2: 
 
 ```shell
 dispel4py redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
@@ -188,27 +188,33 @@ OR
 python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
 ```
 
+**Note**: You can have just one tab, running redis-server in the background: `redis-server &` 
+
+
 #### Hibrid Redis  with two stateful workflows 
 
-```shell
-cd ../graph_testing
-```
+*Note 1*: This mapping also uses multiprocessing (appart from redis) - therefore you might have issues with MacOS (M1 chip). For this mapping, we recommed to use our Docker container. 
+
+*Note 2: You need to have redis-server running. Either in a separete tab, or in the same tab, but in background. See Redis instructions. 
+
+###### Split and Merge workflow
 
 ```shell
-python -m dispel4py.new.processor hybrid_redis split_merge.py -i 100 -n 10
+python -m dispel4py.new.processor hybrid_redis dispel4py.examples.graph_testing.split_merge -i 100 -n 10
 ```
 OR
 
 ```shell
-dispel4py hybrid_redis split_merge.py -i 100 -n 10
+dispel4py hybrid_redis dispel4py.examples.graph_testing.split_merge -i 100 -n 10
 ```
 
+###### All to one stateful workflow
 ```shell
-python -m dispel4py.new.processor hybrid_redis grouping_alltoone_stateful.py -i 100 -n 10
+python -m dispel4py.new.processor hybrid_redis dispel4py.examples.graph_testing.grouping_alltoone_stateful -i 100 -n 10
 ```
 OR
 ```shell
-dispel4py hybrid_redis grouping_alltoone_stateful.py -i 100 -n 10
+dispel4py hybrid_redis dispel4py.examples.graph_testing.grouping_alltoone_stateful -i 100 -n 10
 ```
 
 ## Google Colab Testing
