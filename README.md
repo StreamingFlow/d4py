@@ -124,8 +124,7 @@ The mappings of dispel4py refer to the connections between the processing elemen
 
 [This directory](dispel4py/examples/graph_testing) contains a collection of dispel4py workflows used for testing and validating the functionalities and behavior of dataflow graphs. These workflows are primarily used for testing purposes and ensure that the different mappings (e.g., simple, MPI, Storm) and various features of dispel4py work as expected. They help in verifying the correctness and efficiency of dataflow graphs during development and maintenance of the dispel4py library
 
-For more complex "real-world" examples for specific scientific domains, such as seismology, please see:
-https://github.com/rosafilgueira/dispel4py_workflows
+For more complex "real-world" examples for specific scientific domains, such as seismology, please go to [this repository](https://github.com/StreamingFlow/d4py_workflows)
 
 
 ### Pipeline_test
