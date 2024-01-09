@@ -31,5 +31,5 @@ RUN pip install mpi4py
 
 # Clone and install dispel4py from the specific Git repository
 RUN git clone https://github.com/StreamingFlow/d4py.git 
-RUN cd d4py && python setup.py install
+RUN cd d4py && pip install -r ./requirements.txt && python setup.py install
 
