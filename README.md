@@ -60,7 +60,14 @@ conda install -c conda-forge mpi4py mpich
 ```
 pip install mpi4py
 ```
-3. In some enviroments, you might need these flags for the mpi mapping: 
+
+3. For the mpi mapping, we need to indicate **twice** the number of processes, using twice the -n flag -- one at te beginning and one at the end --:
+
+```
+mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20 -n 10
+```
+
+4. In some enviroments, you might need these flags for the mpi mapping: 
 
 ```
 --allow-run-as-root --oversubscribe 
@@ -138,7 +145,11 @@ mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20
 mpiexec -n 10 python -m dispel4py.new.processor dispel4py.new.mpi_process dispel4py.examples.graph_testing.pipeline_test -i 20 -n 10
 ```
 
+Remember that you might to use the `--allow-run-as-root --oversubscribe` flags for some enviroments:
 
+```shell
+mpiexec -n 10 --allow-run-as-root --oversubscribe  dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20 -n 10
+```
 #### Redis mapping
 
 Note: In another tab, we need to have REDIS working in background:
