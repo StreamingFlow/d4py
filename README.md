@@ -1,5 +1,6 @@
 # d4py
-New dispel4py streaming workflow repository 
+
+## New dispel4py (d4py) streaming workflow repository 
 
 dispel4py is a free and open-source Python library for describing abstract stream-based workflows for distributed data-intensive applications. It enables users to focus on their scientific methods, avoiding distracting details and retaining flexibility over the computing infrastructure they use.  It delivers mappings to diverse computing infrastructures, including cloud technologies, HPC architectures and  specialised data-intensive machines, to move seamlessly into production with large-scale data loads. The dispel4py system maps workflows dynamically onto multiple enactment systems, and supports parallel processing on distributed memory systems with MPI and shared memory systems with multiprocessing, without users having to modify their workflows.
 
@@ -43,15 +44,22 @@ For installing for development with a conda environment, please run the followin
 4. `https://github.com/StreamingFlow/d4py.git`
 5. `cd dispel4py`
 6. `pip install -r requirements.txt`
-7. `conda install -c conda-forge mpi4py mpich`
+7. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
 8. `python setup.py install`
 
 
-## Known Issues
+### Known Issues
 
-Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip). For those users, we do recommend to user our Docker container. See bellow:
+1. Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip). For those users, we do recommend to user our Docker container.
 
-## Docker
+2. You might have to use the following command to install mpi in your MacOS laptop:
+```
+conda install -c conda-forge mpi4py mpich
+```
+3. In some enviroments, you might need these flags for the mpi mapping: --allow-run-as-root --oversubscribe 
+
+
+### Docker
 
 The Dockerfile in the dispel4py root directory installs dispel4py and OpenMPI.
 
@@ -65,10 +73,32 @@ Start a Docker container with the dispel4py image in interactive mode with a bas
 docker run -it dare-dispel4py /bin/bash
 ```
 
+## Mappings
+
+The mappings of dispel4py refer to the connections between the processing elements (PEs) in a dataflow graph. Dispel4py is a Python library used for specifying and executing data-intensive workflows. In a dataflow graph, each PE represents a processing step, and the mappings define how data flows between the PEs during execution. These mappings ensure that data is correctly routed and processed through the dataflow, enabling efficient and parallel execution of tasks. We currently support the following ones:
+
+- **Sequential**
+  - "simple": it executes dataflow graphs sequentially on a single process, suitable for small-scale data processing tasks. 
+- **Parallel**:  
+  -  **Fixed fixed workload distribution - support stateful and stateless PEs:**
+    - "mpi": it distributes dataflow graph computations across multiple nodes (distributed memory) using the Message Passing Interface (MPI). 
+    - "mpi" it runs multiple instansces of dataflow graph concurrently using MPI, offering parallel processing in a distributed shared memory enviroment, such as a HPC cluster. 
+    - "multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**, offering parallel processing on a single machine. 
+    - "zmq_multi": it runs multiple instances of a dataflow graph concurrently using **ZMQ library**, offering parallel processing on a single machine.
+  - **Dynamic workfload distribution -  support only stateless PEs** 
+    - "dyn_multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**. Worload assigned dynamically (but no autoscaling). 
+    - "dyn_auto_multi": same as above, but allows autoscaling. We can indicate the number of threads to use.
+    - "dyn_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Worload assigned dynamically (but no autocasling). 
+    - "dyn_auto_redis": same as above, but allows autoscaling. We can indicate the number of threads to use.
+  - **Hybrid workload distribution - supports stateful and stateless PEs**
+    - "hybrid_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Hybrid approach for workloads: Stafeless PEs assigned dynamically, while Stateful PEs are assigned from the begining.
+  
 
 ## Examples
 
-Some simple examples, intended for testing, are included in this repository.
+
+[This directory](dispel4py/examples/graph_testing) contains a collection of dispel4py workflows used for testing and validating the functionalities and behavior of dataflow graphs. These workflows are primarily used for testing purposes and ensure that the different mappings (e.g., simple, MPI, Storm) and various features of dispel4py work as expected. They help in verifying the correctness and efficiency of dataflow graphs during development and maintenance of the dispel4py library
+
 For more complex "real-world" examples for specific scientific domains, such as seismology, please see:
 https://github.com/rosafilgueira/dispel4py_workflows
 
@@ -104,18 +134,39 @@ mpiexec -n 10 python -m dispel4py.new.processor dispel4py.new.mpi_process dispel
 
 #### Redis mapping
 
+Note: In another tab, we need to have REDIS working in background:
+```shell
+redis-server
+
 RDD:
 ```shell
 python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
 ```
 
-Note: In another tab, we need to have REDIS working in background:
+#### Hibrid Redis  with two stateful workflows 
+
 ```shell
-redis-server
+cd ../graph_testing
 ```
+```shell
+python -m dispel4py.new.processor hybrid_redis split_merge.py -i 100 -n 10
+```
+OR
+
+```shell
+dispel4py hybrid_redis split_merge.py -i 100 -n 10
+```
+
+```shell
+python -m dispel4py.new.processor hybrid_redis grouping_alltoone_stateful.py -i 100 -n 10
+```
+OR
+```shell
+dispel4py hybrid_redis grouping_alltoone_stateful.py -i 100 -n 10
+
 
 ## Google Colab Testing
 
 Notebook for [testing_dispel4py2.0 in Google Col](https://colab.research.google.com/drive/1rSkwBgu42YG3o2AAHweVkJPuqVZF62te?usp=sharing)
 
-
+## dispel4py Workflow Testing
