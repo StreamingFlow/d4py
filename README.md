@@ -39,8 +39,8 @@ In order to install dispel4py on your system:
 
 For installing for development with a conda environment, please run the following commands in your terminal.
 
-1. `conda create --name py310 python=3.10`
-2. `conda activate py310`
+1. `conda create --name d4py_env python=3.10`
+2. `conda activate d4py_env`
 4. `https://github.com/StreamingFlow/d4py.git`
 5. `cd dispel4py`
 6. `pip install -r requirements.txt`
@@ -54,7 +54,7 @@ For installing for development with a conda environment, please run the followin
 
 
 ```
-File "/Users/...../anaconda3/envs/py310/lib/python3.10/multiprocessing/spawn.py", line 126, in _main
+File "/Users/...../anaconda3/envs/.../lib/python3.10/multiprocessing/spawn.py", line 126, in _main
     self = reduction.pickle.load(from_parent)
 AttributeError: 'TestProducer' object has no attribute 'simple_logger'
 ```
