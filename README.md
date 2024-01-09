@@ -56,7 +56,15 @@ For installing for development with a conda environment, please run the followin
 ```
 conda install -c conda-forge mpi4py mpich
 ```
-3. In some enviroments, you might need these flags for the mpi mapping: --allow-run-as-root --oversubscribe 
+   In Linux enviroments to install mpi you can use:
+```
+pip install mpi4py
+```
+3. In some enviroments, you might need these flags for the mpi mapping: 
+
+```
+--allow-run-as-root --oversubscribe 
+```
 
 
 ### Docker
