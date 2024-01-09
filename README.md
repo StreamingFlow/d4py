@@ -94,7 +94,7 @@ docker build . -t mydispel4py
 Start a Docker container with the dispel4py image in interactive mode with a bash shell:
 
 ```
-docker run -it dare-dispel4py /bin/bash
+docker run -it mydispel4py /bin/bash
 ```
 
 ## Mappings
