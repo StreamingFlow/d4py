@@ -89,10 +89,9 @@ The mappings of dispel4py refer to the connections between the processing elemen
   - "simple": it executes dataflow graphs sequentially on a single process, suitable for small-scale data processing tasks. 
 - **Parallel**:  
   -  **Fixed fixed workload distribution - support stateful and stateless PEs:**
-    - "mpi": it distributes dataflow graph computations across multiple nodes (distributed memory) using the Message Passing Interface (MPI). 
-    - "mpi" it runs multiple instansces of dataflow graph concurrently using MPI, offering parallel processing in a distributed shared memory enviroment, such as a HPC cluster. 
-    - "multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**, offering parallel processing on a single machine. 
-    - "zmq_multi": it runs multiple instances of a dataflow graph concurrently using **ZMQ library**, offering parallel processing on a single machine.
+    	- "mpi": it distributes dataflow graph computations across multiple nodes (distributed memory) using the Message Passing Interface (MPI). 
+    	- "multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**, offering parallel processing on a single machine. 
+    	- "zmq_multi": it runs multiple instances of a dataflow graph concurrently using **ZMQ library**, offering parallel processing on a single machine.
   - **Dynamic workfload distribution -  support only stateless PEs** 
     - "dyn_multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**. Worload assigned dynamically (but no autoscaling). 
     - "dyn_auto_multi": same as above, but allows autoscaling. We can indicate the number of threads to use.
