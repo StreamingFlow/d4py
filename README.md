@@ -110,10 +110,11 @@ The mappings of dispel4py refer to the connections between the processing elemen
     	- "mpi": it distributes dataflow graph computations across multiple nodes (distributed memory) using the **Message Passing Interface (MPI)**. 
     	- "multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**, offering parallel processing on a single machine. 
     	- "zmq_multi": it runs multiple instances of a dataflow graph concurrently using **ZMQ library**, offering parallel processing on a single machine.
+        - "redis" : it runs multiple instances of a dataflow graph concurrently using **Redis library**. 
   - **Dynamic workfload distribution -  support only stateless PEs** 
     - "dyn_multi": it runs multiple instances of a dataflow graph concurrently using **multiprocessing Python library**. Worload assigned dynamically (but no autoscaling). 
     - "dyn_auto_multi": same as above, but allows autoscaling. We can indicate the number of threads to use.
-    - "dyn_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Worload assigned dynamically (but no autocasling). 
+    - "dyn_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Workload assigned dynamically (but no autocasling). 
     - "dyn_auto_redis": same as above, but allows autoscaling. We can indicate the number of threads to use.
   - **Hybrid workload distribution - supports stateful and stateless PEs**
     - "hybrid_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Hybrid approach for workloads: Stafeless PEs assigned dynamically, while Stateful PEs are assigned from the begining.
