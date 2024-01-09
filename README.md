@@ -153,10 +153,12 @@ mpiexec -n 10 --allow-run-as-root --oversubscribe  dispel4py mpi dispel4py.examp
 #### Redis mapping
 
 Note: In another tab, we need to have REDIS working in background:
-```shell
+
+Tab 1: ```shell
 redis-server
 ```
-```shell
+
+Tab 2 ```shell
 python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples.graph_testing.word_count -ri localhost -n 4 -i 10
 ```
 
