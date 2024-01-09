@@ -91,6 +91,8 @@ The Dockerfile in the dispel4py root directory installs dispel4py and OpenMPI.
 docker build . -t mydispel4py
 ```
 
+Note: If you want to re-built an image without cache, use this flag: `--no-cache`
+
 Start a Docker container with the dispel4py image in interactive mode with a bash shell:
 
 ```
