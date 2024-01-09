@@ -10,10 +10,8 @@ ENV VENV_PATH /home/user/venv
 RUN apt-get update --fix-missing && \
     apt-get install -y wget bzip2 \
     libglib2.0-0 libxext6 libsm6 libxrender1 \
-    build-essential git vim nano screen
-
-# Install MPI development libraries
-RUN apt-get install -y libopenmpi-dev
+    build-essential git vim nano screen \
+    libopenmpi-dev redis-server
 
 # Add user
 RUN adduser ${USER} --disabled-password --gecos "" && \
@@ -34,3 +32,4 @@ RUN pip install mpi4py
 # Clone and install dispel4py from the specific Git repository
 RUN git clone https://github.com/StreamingFlow/d4py.git 
 RUN cd d4py && python setup.py install
+
