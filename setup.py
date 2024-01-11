@@ -1,4 +1,4 @@
-# Copyright (c) The University of Edinburgh 2014
+# Copyright (c) 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,13 +22,25 @@ from setuptools import setup
 # README file and 2) it's easier to type in the README file than to put a raw
 # string in below ...
 def read(fname):
+    print("installing dispel4py")
     with open(os.path.join(os.path.dirname(__file__), fname)) as file:
         return file.read()
+
+with open('requirements.txt', 'r') as f:
+    install_requires = list()
+    dependency_links = list()
+    for line in f:
+        re = line.strip()
+        if re:
+            if re.startswith('git+') or re.startswith('svn+') or re.startswith('hg+'):
+                dependency_links.append(re)
+            else:
+                install_requires.append(re)
 
 
 setup(
   name="stream_d4py",
-    version="2.0",
+    version="2.2",
     description="dispel4py is a free and open-source Python library for describing abstract stream-based workflows for distributed data-intensive applications.",
     license="Apache 2",
     author='Rosa Filgueira and Amy Krauser',
@@ -38,7 +50,7 @@ setup(
     long_description=read("README.md"),
     long_description_content_type='text/markdown',
     packages=["dispel4py", "dispel4py.new", "dispel4py.examples", "dispel4py.examples.graph_testing"],
-    install_requires=["networkx", "flake8", "redis"],
+    install_requires=install_requires,
     python_requires=">=3.10",
     entry_points={"console_scripts": ["dispel4py = dispel4py.new.processor:main"]},
     classifiers=[

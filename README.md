@@ -23,7 +23,12 @@ You will also need the following installed on your system:
 
 ## Installation
 
-In order to install dispel4py on your system:
+The easiest way to install dispel4py is via pip (https://pypi.python.org/pypi/pip):
+
+pip install stream-d4py
+
+
+Or you can  install the latest development from github [https://github.com/StreamingFlow/d4py.git](https://github.com/StreamingFlow/d4py.git) and follow this instructions:
 
 - Clone the git repository
 - Make sure that `redis` and the `mpi4py` Python package are installed on your system
