@@ -26,10 +26,10 @@ RUN python3 -m venv ${VENV_PATH}
 ENV PATH="${VENV_PATH}/bin:$PATH"
 
 # Install Python packages
-RUN pip install jupyter numpy networkx flake8 redis==4.4.2
+RUN pip install jupyter numpy
 RUN pip install mpi4py
 
 # Clone and install dispel4py from the specific Git repository
 RUN git clone https://github.com/StreamingFlow/d4py.git 
-RUN cd d4py && pip install -r ./requirements.txt && python setup.py install
+RUN cd d4py && python setup.py install
 
