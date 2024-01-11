@@ -203,7 +203,7 @@ python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples
 
 *Note 1*: This mapping also uses multiprocessing (appart from redis) - therefore you might have issues with MacOS (M1 chip). For this mapping, we recommed to use our Docker container. 
 
-*Note 2*: You need to have redis-server running. Either in a separete tab, or in the same tab, but in background. See [Redis mapping instructions](https://github.com/StreamingFlow/stream-d4py/tree/main#redis-mapping). 
+*Note 2*: You need to have redis-server running. Either in a separete tab, or in the same tab, but in background. 
 
 ###### Split and Merge workflow
 
@@ -227,5 +227,5 @@ dispel4py hybrid_redis dispel4py.examples.graph_testing.grouping_alltoone_statef
 
 ## Google Colab Testing
 
-Notebook for [testing_dispel4py2.0 in Google Col](https://colab.research.google.com/drive/1rSkwBgu42YG3o2AAHweVkJPuqVZF62te?usp=sharing)
+Notebook for [testing dispel4py (stream-d4py) in Google Col](https://colab.research.google.com/drive/1rSkwBgu42YG3o2AAHweVkJPuqVZF62te?usp=sharing)
 
