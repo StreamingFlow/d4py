@@ -40,7 +40,7 @@ with open('requirements.txt', 'r') as f:
 
 setup(
   name="stream_d4py",
-    version="2.3",
+    version="2.8",
     description="dispel4py is a free and open-source Python library for describing abstract stream-based workflows for distributed data-intensive applications.",
     license="Apache 2",
     author='Rosa Filgueira and Amy Krauser',
