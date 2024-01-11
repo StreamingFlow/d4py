@@ -18,4 +18,3 @@ coloredlogs
 ujson
 jwt
 networkx
-redis-server
