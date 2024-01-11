@@ -27,34 +27,26 @@ def read(fname):
 
 
 setup(
-    name="dispel4py",
+  name="stream_d4py",
     version="2.0",
-    description=(
-        "dispel4py is a free and open-source Python library for \
-        describing abstract stream-based workflows for distributed \
-        data-intensive applications."
-    ),
+    description="dispel4py is a free and open-source Python library for describing abstract stream-based workflows for distributed data-intensive applications.",
     license="Apache 2",
+    author='Rosa Filgueira and Amy Krauser',
+    author_email='rosa.filgueira.vicente@gmail.com',
     keywords="updated dispel4py dispel workflows processing elements data intensive",
     url='https://github.com/StreamingFlow/d4py/',
-    packages=[
-        "dispel4py",
-        "dispel4py.new",
-        "dispel4py.examples",
-        "dispel4py.examples.graph_testing",
-    ],
     long_description=read("README.md"),
+    long_description_content_type='text/markdown',
+    packages=["dispel4py", "dispel4py.new", "dispel4py.examples", "dispel4py.examples.graph_testing"],
     install_requires=["networkx", "flake8", "redis"],
     python_requires=">=3.10",
-    entry_points={
-        "console_scripts": [
-            "dispel4py = dispel4py.new.processor:main",
-        ],
-    },
+    entry_points={"console_scripts": ["dispel4py = dispel4py.new.processor:main"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
-        "License :: OSI Approved :: Apache 2 License",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Operating System :: OS Independent",
     ],
 )
