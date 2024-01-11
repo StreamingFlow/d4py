@@ -11,10 +11,7 @@ This version of dispel4py has been tested with Python *3.10*
 
 For earlier versions of dispel4py compatible with Python <3.10 ( e.g *2.7.5*, *2.7.2*, *2.6.6* and Python *3.4.3*, *3.6*, *3.7*) we recommend to go [here](https://gitlab.com/project-dare/dispel4py).
 
-The dependencies required for running dispel4py are listed in the requirements.txt file. To install them, please run:
-```shell
-pip install -r requirements.txt
-```
+The dependencies required for running dispel4py are listed in the requirements.txt file.
 
 You will also need the following installed on your system:
 
@@ -25,8 +22,9 @@ You will also need the following installed on your system:
 
 The easiest way to install dispel4py is via pip (https://pypi.python.org/pypi/pip):
 
+```
 pip install stream-d4py
-
+```
 
 Or you can  install the latest development from github [https://github.com/StreamingFlow/d4py.git](https://github.com/StreamingFlow/d4py.git) and follow this instructions:
 
