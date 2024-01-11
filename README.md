@@ -31,7 +31,6 @@ Or you can  install the latest development from github [https://github.com/Strea
 - Clone the git repository
 - Make sure that `redis` and the `mpi4py` Python package are installed on your system
 - It is optional but recommended to create a virtual environment for dispel4py. Please refer to instructions bellow for setting it up with Conda.
-- Install the requirements by running: `pip install -r requirements.txt`
 - Run the dispel4py setup script: `python setup.py install`
 - Run dispel4py using one of the following commands:
   - `dispel4py <mapping name> <workflow file> <args>`, OR
@@ -46,7 +45,6 @@ For installing for development with a conda environment, please run the followin
 2. `conda activate stream-d4py_env`
 4. `https://github.com/StreamingFlow/stream-d4py.git`
 5. `cd dispel4py`
-6. `pip install -r requirements.txt`
 7. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
 8. `python setup.py install`
 
