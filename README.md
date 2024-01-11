@@ -1,6 +1,6 @@
-# d4py
+# stream-d4py
 
-## New dispel4py (d4py) streaming workflow repository 
+## New dispel4py (stream-d4py) streaming workflow repository 
 
 dispel4py is a free and open-source Python library for describing abstract stream-based workflows for distributed data-intensive applications. It enables users to focus on their scientific methods, avoiding distracting details and retaining flexibility over the computing infrastructure they use.  It delivers mappings to diverse computing infrastructures, including cloud technologies, HPC architectures and  specialised data-intensive machines, to move seamlessly into production with large-scale data loads. The dispel4py system maps workflows dynamically onto multiple enactment systems, and supports parallel processing on distributed memory systems with MPI and shared memory systems with multiprocessing, without users having to modify their workflows.
 
@@ -39,9 +39,9 @@ In order to install dispel4py on your system:
 
 For installing for development with a conda environment, please run the following commands in your terminal.
 
-1. `conda create --name d4py_env python=3.10`
-2. `conda activate d4py_env`
-4. `https://github.com/StreamingFlow/d4py.git`
+1. `conda create --name stream-d4py_env python=3.10`
+2. `conda activate stream-d4py_env`
+4. `https://github.com/StreamingFlow/stream-d4py.git`
 5. `cd dispel4py`
 6. `pip install -r requirements.txt`
 7. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
@@ -125,7 +125,7 @@ The mappings of dispel4py refer to the connections between the processing elemen
 
 [This directory](dispel4py/examples/graph_testing) contains a collection of dispel4py workflows used for testing and validating the functionalities and behavior of dataflow graphs. These workflows are primarily used for testing purposes and ensure that the different mappings (e.g., simple, MPI, Storm) and various features of dispel4py work as expected. They help in verifying the correctness and efficiency of dataflow graphs during development and maintenance of the dispel4py library
 
-For more complex "real-world" examples for specific scientific domains, such as seismology, please go to [this repository](https://github.com/StreamingFlow/d4py_workflows)
+For more complex "real-world" examples for specific scientific domains, such as seismology, please go to [this repository](https://github.com/StreamingFlow/stream-d4py_workflows)
 
 
 ### Pipeline_test
@@ -196,7 +196,7 @@ python -m dispel4py.new.processor dispel4py.new.dynamic_redis dispel4py.examples
 
 *Note 1*: This mapping also uses multiprocessing (appart from redis) - therefore you might have issues with MacOS (M1 chip). For this mapping, we recommed to use our Docker container. 
 
-*Note 2*: You need to have redis-server running. Either in a separete tab, or in the same tab, but in background. See [Redis mapping instructions](https://github.com/StreamingFlow/d4py/tree/main#redis-mapping). 
+*Note 2*: You need to have redis-server running. Either in a separete tab, or in the same tab, but in background. See [Redis mapping instructions](https://github.com/StreamingFlow/stream-d4py/tree/main#redis-mapping). 
 
 ###### Split and Merge workflow
 
