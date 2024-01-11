@@ -43,16 +43,17 @@ For installing for development with a conda environment, please run the followin
 
 1. `conda create --name stream-d4py_env python=3.10`
 2. `conda activate stream-d4py_env`
-4. `https://github.com/StreamingFlow/stream-d4py.git`
-5. `cd dispel4py`
-7. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
-8. `python setup.py install`
+3. `https://github.com/StreamingFlow/stream-d4py.git`
+4. `cd dispel4py`
+5. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
+6. `python setup.py install`
 
 OR just simply do these:
 
 1. `conda create --name stream-d4py_env python=3.10`
 2. `conda activate stream-d4py_env`
-3. `pip install stream-d4py`
+3. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
+4. `pip install stream-d4py`
 
 
 ### Known Issues
