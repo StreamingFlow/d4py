@@ -35,8 +35,8 @@ setup(
         data-intensive applications."
     ),
     license="Apache 2",
-    keywords="dispel4py dispel workflows processing elements data intensive",
-    url="http://dispel4py.org",
+    keywords="updated dispel4py dispel workflows processing elements data intensive",
+    url='https://github.com/StreamingFlow/d4py/',
     packages=[
         "dispel4py",
         "dispel4py.new",
@@ -45,14 +45,16 @@ setup(
     ],
     long_description=read("README.md"),
     install_requires=["networkx", "flake8", "redis"],
+    python_requires=">=3.10",
     entry_points={
         "console_scripts": [
             "dispel4py = dispel4py.new.processor:main",
         ],
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: Apache 2 License",
+        "Programming Language :: Python",
     ],
 )
