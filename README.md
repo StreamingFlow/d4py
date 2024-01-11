@@ -7,7 +7,9 @@ dispel4py is a free and open-source Python library for describing abstract strea
 
 ## Dependencies
 
-dispel4py has been tested with Python *2.7.6*, *2.7.5*, *2.7.2*, *2.6.6* and Python *3.4.3*, *3.6*, *3.7*, *3.10*.
+This version of dispel4py has been tested with Python *3.10*
+
+For earlier versions of dispel4py compatible with Python <3.10 ( e.g *2.7.5*, *2.7.2*, *2.6.6* and Python *3.4.3*, *3.6*, *3.7*) we recommend to go [here](https://gitlab.com/project-dare/dispel4py).
 
 The dependencies required for running dispel4py are listed in the requirements.txt file. To install them, please run:
 ```shell
@@ -17,8 +19,6 @@ pip install -r requirements.txt
 You will also need the following installed on your system:
 
 - If using the MPI mapping, please install [mpi4py](http://mpi4py.scipy.org/)
-- If using the Redis mapping, please install [redis](https://redis.io/download/)
-
 
 
 ## Installation
