@@ -11,35 +11,21 @@ This version of dispel4py has been tested with Python *3.10*
 
 For earlier versions of dispel4py compatible with Python <3.10 ( e.g *2.7.5*, *2.7.2*, *2.6.6* and Python *3.4.3*, *3.6*, *3.7*) we recommend to go [here](https://gitlab.com/project-dare/dispel4py).
 
-The dependencies required for running dispel4py are listed in the requirements.txt file.
+The dependencies required for running dispel4py are listed in the requirements.txt file. However those are automatically installed running `pip install stream-py` or `python setup.py install` commands. Therefore there is not need to manually install those.
 
-You will also need the following installed on your system:
-
-- If using the MPI mapping, please install [mpi4py](http://mpi4py.scipy.org/)
-
+If using the MPI mapping, please install [mpi4py](http://mpi4py.scipy.org/)
 
 ## Installation
 
-The easiest way to install dispel4py is via pip (https://pypi.python.org/pypi/pip):
+We recommend to install first a conda enviroment with python 3.10. Then, you can install dispel4py via pip or cloning this repo. See bellow:
 
-```
-pip install stream-d4py
-```
+### Via pip 
+1. `conda create --name stream-d4py_env python=3.10`
+2. `conda activate stream-d4py_env`
+3. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
+4. `pip install stream-d4py`
 
-Or you can  install the latest development from github [https://github.com/StreamingFlow/d4py.git](https://github.com/StreamingFlow/d4py.git) and follow this instructions:
-
-- Clone the git repository
-- Make sure that `redis` and the `mpi4py` Python package are installed on your system
-- It is optional but recommended to create a virtual environment for dispel4py. Please refer to instructions bellow for setting it up with Conda.
-- Run the dispel4py setup script: `python setup.py install`
-- Run dispel4py using one of the following commands:
-  - `dispel4py <mapping name> <workflow file> <args>`, OR
-  - `python -m dispel4py.new.processor <mapping module> <workflow module> <args>`
-- See "Examples" section bellow for more details
-
-### Conda Environment
-
-For installing for development with a conda environment, please run the following commands in your terminal.
+### Via cloning this repo
 
 1. `conda create --name stream-d4py_env python=3.10`
 2. `conda activate stream-d4py_env`
@@ -48,15 +34,8 @@ For installing for development with a conda environment, please run the followin
 5. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
 6. `python setup.py install`
 
-OR just simply do these:
 
-1. `conda create --name stream-d4py_env python=3.10`
-2. `conda activate stream-d4py_env`
-3. `conda install -c conda-forge mpi4py mpich` OR `pip install mpi4py` (Linux)
-4. `pip install stream-d4py`
-
-
-### Known Issues
+## Known Issues
 
 1. Multiprocessing (multi) does not seem to work properly in MacOS (M1 chip).See bellow:
 
@@ -93,7 +72,7 @@ mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20
 5. When running workflows with **mpi mapping**  you may encounter messages like `Read -1, expected 56295, errno = 1`. There's no need for concern; these messages are typical and do not indicate a problem. Rest assured, your workflow is still running as expected.
 
 
-### Docker
+## Docker
 
 The Dockerfile in the dispel4py root directory installs dispel4py and mpi4py.
 
