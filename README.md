@@ -67,7 +67,7 @@ File "/Users/...../anaconda3/envs/.../lib/python3.10/multiprocessing/spawn.py", 
 AttributeError: 'TestProducer' object has no attribute 'simple_logger'
 ```
 
-For those users, we do recommend to user our Docker container.
+For those users, we do recommend to user our Docker file to create an image, and later a container.
 
 2. You might have to use the following command to install mpi in your MacOS laptop:
 ```
