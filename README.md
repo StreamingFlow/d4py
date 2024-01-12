@@ -90,6 +90,8 @@ mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20
 --allow-run-as-root --oversubscribe 
 ```
 
+5. When running workflows with **mpi mapping**  you may encounter messages like `Read -1, expected 56295, errno = 1`. There's no need for concern; these messages are typical and do not indicate a problem. Rest assured, your workflow is still running as expected.
+
 
 ### Docker
 
