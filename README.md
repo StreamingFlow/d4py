@@ -95,7 +95,7 @@ mpiexec -n 10 dispel4py mpi dispel4py.examples.graph_testing.pipeline_test -i 20
 
 ### Docker
 
-The Dockerfile in the dispel4py root directory installs dispel4py and OpenMPI.
+The Dockerfile in the dispel4py root directory installs dispel4py and mpi4py.
 
 ```
 docker build . -t mydispel4py
