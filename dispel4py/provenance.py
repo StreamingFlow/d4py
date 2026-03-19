@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import argparse
-import collections
 import datetime
 import inspect
 import json
@@ -21,11 +20,13 @@ import socket
 import sys
 import traceback
 import uuid
+from importlib import metadata as importlib_metadata
 from copy import deepcopy
 from http.client import HTTPConnection
 from itertools import chain
 from subprocess import PIPE, Popen
 from typing import Any
+from collections.abc import Iterable
 from urllib.parse import urlencode, urlparse
 
 import jwt
@@ -55,6 +56,21 @@ SPROV_CL_D4PY_INPUT = {
     "prov:type": "provone:Data",
     "value": "encoded_json",
 }
+
+
+def _installed_packages():
+    """
+    Return installed package strings as ``name==version`` in a
+    Python 3.10+ compatible way.
+    """
+    packages = []
+    for dist in importlib_metadata.distributions():
+        name = dist.metadata.get("Name") or dist.metadata.get("name")
+        if not name:
+            continue
+        version = dist.version or ""
+        packages.append(f"{name}=={version}" if version else name)
+    return packages
 
 
 def clean_empty(d):
@@ -674,6 +690,7 @@ class ProvenanceType(GenericPE):
                 self.connection.close()
                 self.bulk_prov[:] = []
             elif self.save_mode == ProvenanceType.SAVE_MODE_FILE:
+                os.makedirs(ProvenanceType.PROV_PATH, exist_ok=True)
                 filep = open(
                     ProvenanceType.PROV_PATH + "/bulk_" + self.makeProcessId(),
                     "w",
@@ -758,6 +775,7 @@ class ProvenanceType(GenericPE):
         self.bulk_prov.append(prov)
 
         if len(self.bulk_prov) == ProvenanceType.BULK_SIZE:
+            os.makedirs(ProvenanceType.PROV_PATH, exist_ok=True)
             filep = open(
                 ProvenanceType.PROV_PATH + "/bulk_" + self.makeProcessId(),
                 "w",
@@ -852,7 +870,7 @@ class ProvenanceType(GenericPE):
         inputs = {}
 
         try:
-            if not isinstance(data, collections.Iterable):
+            if not isinstance(data, Iterable):
                 return data
             else:
                 for x in data:
@@ -900,17 +918,22 @@ class ProvenanceType(GenericPE):
             self.__markIteration()
 
             if self.impcls is not None and isinstance(self, self.impcls):
-                try:
-                    if hasattr(self, "params"):
-                        self.parameters = deepcopy(self.params)
-                    result = self._process(inputs[self.impcls.INPUT_NAME])
-                    if result is not None:
-                        self.log(self.impcls)
-                        self.writeResults(self.impcls.OUTPUT_NAME, result)
-                        result = None
-                except:
-                    traceback.format_exc()
+                if hasattr(self, "params"):
+                    self.parameters = deepcopy(self.params)
+                input_name = getattr(self.impcls, "INPUT_NAME", None)
+                output_name = getattr(self.impcls, "OUTPUT_NAME", None)
+                if (
+                    input_name is not None
+                    and isinstance(inputs, dict)
+                    and input_name in inputs
+                ):
+                    result = self._process(inputs[input_name])
+                else:
                     result = self._process(inputs)
+                if result is not None and output_name is not None:
+                    self.log(self.impcls)
+                    self.writeResults(output_name, result)
+                    result = None
 
             else:
                 result = self._process(inputs)
@@ -2133,6 +2156,7 @@ def init_provenance_config(args):
         ProvenanceType.PROV_BEARER_TOKEN = provenance_args.prov_bearer_token
     if provenance_args.prov_path:
         ProvenanceType.PROV_PATH = provenance_args.prov_path
+        os.makedirs(ProvenanceType.PROV_PATH, exist_ok=True)
     if provenance_args.prov_bulk_size:
         ProvenanceType.BULK_SIZE = provenance_args.prov_bulk_size
 
@@ -2180,7 +2204,7 @@ def init_provenance_config(args):
         if provenance_args.prov_repo_url:
             prov_config["s-prov:save-mode"] = "service"
         elif provenance_args.prov_path:
-            prov_config["s-prov:save-mode"] == "file"
+            prov_config["s-prov:save-mode"] = "file"
         else:
             print(
                 "\nMust supply either --provenance-repository-url or --provenance-path argument.\n",
@@ -2630,9 +2654,7 @@ class NewWorkflowRun(ProvenanceType):
             workflowType=self.parameters["workflowType"],
             runId=self.parameters["runId"],
             sessionId=self.parameters["sessionId"],
-            modules=sorted(
-                [f"{i.key}=={i.version}" for i in get_installed_distributions()],
-            ),
+            modules=sorted(_installed_packages()),
             subProcesses=self.parameters["source"],
             ns=self.parameters["ns"],
             status=self.parameters["status"],

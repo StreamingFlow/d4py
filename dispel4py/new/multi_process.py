@@ -154,10 +154,19 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
     process_pes = {}
     queues = {}
 
+    # Provenance injects runtime PE types which are not spawn-picklable on macOS.
+    # Prefer a fork context when provenance is enabled and fork is available.
+    ctx = multiprocessing
+    if getattr(args, "provenance", None):
+        try:
+            ctx = multiprocessing.get_context("fork")
+        except (ValueError, RuntimeError):
+            ctx = multiprocessing
+
     result_queue = None
     try:
         if args.results:
-            result_queue = multiprocessing.Queue()
+            result_queue = ctx.Queue()
     except AttributeError:
         pass
 
@@ -168,7 +177,7 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
             cp.rank = proc
             wrapper = MultiProcessingWrapper(proc, cp, provided_inputs)
             process_pes[proc] = wrapper
-            wrapper.input_queue = multiprocessing.Queue()
+            wrapper.input_queue = ctx.Queue()
             wrapper.input_queue.name = f"Queue_{cp.id}_{cp.rank}"
             wrapper.result_queue = result_queue
             queues[proc] = wrapper.input_queue
@@ -185,7 +194,7 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
 
     jobs = []
     for wrapper in process_pes.values():
-        p = multiprocessing.Process(target=_process_worker, args=(wrapper,))
+        p = ctx.Process(target=_process_worker, args=(wrapper,))
         jobs.append(p)
 
     for j in jobs:
