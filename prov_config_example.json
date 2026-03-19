@@ -1,0 +1,8 @@
+{
+  "s-prov:save-mode": "file",
+  "s-prov:workflowName": "word_count",
+  "s-prov:workflowType": "dispel4py",
+  "s-prov:workflowId": "urn:workflow:word_count",
+  "s-prov:creator": "Rosa"
+}
+
