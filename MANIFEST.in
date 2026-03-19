@@ -1,2 +1,4 @@
 include README.md
+include README_Monitor.md
 include LICENSE
+include requirements.txt

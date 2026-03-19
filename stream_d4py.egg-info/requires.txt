@@ -10,3 +10,4 @@ coloredlogs
 ujson
 jwt
 numpy
+matplotlib

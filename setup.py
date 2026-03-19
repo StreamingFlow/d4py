@@ -12,30 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+from pathlib import Path
 
 from setuptools import setup
 
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
+BASE_DIR = Path(__file__).resolve().parent
+
+
 def read(fname):
     print("installing dispel4py")
-    with open(os.path.join(os.path.dirname(__file__), fname)) as file:
+    with open(BASE_DIR / fname) as file:
         return file.read()
 
-with open('requirements.txt', 'r') as f:
-    install_requires = list()
-    dependency_links = list()
-    for line in f:
-        re = line.strip()
-        if re:
-            if re.startswith('git+') or re.startswith('svn+') or re.startswith('hg+'):
-                dependency_links.append(re)
-            else:
-                install_requires.append(re)
+install_requires = []
+dependency_links = []
+requirements_path = BASE_DIR / "requirements.txt"
+if requirements_path.exists():
+    with requirements_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            re = line.strip()
+            if re:
+                if re.startswith("git+") or re.startswith("svn+") or re.startswith("hg+"):
+                    dependency_links.append(re)
+                else:
+                    install_requires.append(re)
 
 
 setup(

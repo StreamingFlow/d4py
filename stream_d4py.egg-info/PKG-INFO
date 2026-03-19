@@ -28,6 +28,7 @@ Requires-Dist: coloredlogs
 Requires-Dist: ujson
 Requires-Dist: jwt
 Requires-Dist: numpy
+Requires-Dist: matplotlib
 Dynamic: author
 Dynamic: author-email
 Dynamic: classifier
@@ -151,6 +152,10 @@ The mappings of dispel4py refer to the connections between the processing elemen
   - **Hybrid workload distribution - supports stateful and stateless PEs**
     - "hybrid_redis": it runs multiple instances of a dataflow graph concurrently using **Redis library**. Hybrid approach for workloads: Stafeless PEs assigned dynamically, while Stateful PEs are assigned from the begining.
   
+### Monitoring Mappings Guide
+
+For the monitoring-enabled mappings (`timed_simple`, `timed_multi`, `timed_mpi`) and a full explanation of generated timing/latency/graph files, see [README_Monitor.md](README_Monitor.md).
+
 
 ## Examples
 
@@ -252,4 +257,3 @@ dispel4py hybrid_redis dispel4py.examples.graph_testing.grouping_alltoone_statef
 ## Google Colab Testing
 
 Notebook for [testing dispel4py (stream-d4py) in Google Col](https://colab.research.google.com/drive/1rSkwBgu42YG3o2AAHweVkJPuqVZF62te?usp=sharing)
-
