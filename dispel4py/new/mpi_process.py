@@ -165,6 +165,12 @@ def process(workflow: WorkflowGraph, inputs: Dict[str, Any], args: argparse.Name
     inputmappings = comm.bcast(inputmappings, root=0)
     outputmappings = comm.bcast(outputmappings, root=0)
     inputs = comm.bcast(inputs, root=0)
+    try:
+        args._d4py_processes = processes
+        args._d4py_input_mappings = inputmappings
+        args._d4py_output_mappings = outputmappings
+    except Exception:
+        pass
 
     if rank == 0:
         print("Processes: %s" % processes)

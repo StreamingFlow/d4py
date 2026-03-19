@@ -79,7 +79,7 @@ from dispel4py.new.logger import simpleLogger
 from dispel4py.new.processor import GenericWrapper, SimpleProcessingPE
 
 
-def process_and_return(workflow, inputs, resultmappings=None):
+def process_and_return(workflow, inputs, resultmappings=None, args=None):
     """
     Executes the simple sequential processor for dispel4py graphs and returns
     the data collected from any unconnected output streams.
@@ -99,13 +99,22 @@ def process_and_return(workflow, inputs, resultmappings=None):
         workflow,
         numnodes,
     )
+    try:
+        if args is not None:
+            args._d4py_processes = processes
+            args._d4py_input_mappings = inputmappings
+            args._d4py_output_mappings = outputmappings
+    except Exception:
+        pass
     # print 'Processes: %s' % processes
     # print inputmappings
     # print outputmappings
     proc_to_pe = {}
     for node in workflow.graph.nodes():
         pe = node.get_contained_object()
-        proc_to_pe[processes[pe.id][0]] = pe
+        proc = processes[pe.id][0]
+        pe.rank = proc
+        proc_to_pe[proc] = pe
 
     simple = SimpleProcessingPE(inputmappings, outputmappings, proc_to_pe)
     simple.id = "SimplePE"
@@ -143,7 +152,7 @@ def process(workflow, inputs, args=None, resultmappings=None):
         print(f"Inputs: {({pe.id: data for pe, data in inputs.items()})}")
     except:
         print(f"Inputs: {(dict(inputs.items()))}")
-    results = process_and_return(workflow, inputs, resultmappings)
+    results = process_and_return(workflow, inputs, resultmappings, args=args)
     print(f"Outputs: {results}")
 
 

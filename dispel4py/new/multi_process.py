@@ -67,6 +67,7 @@ def simple_logger(self, msg):
 
 
 def _process_worker(wrapper):
+    wrapper.pe.log = types.MethodType(simple_logger, wrapper.pe)
     wrapper.process()
 
 
@@ -143,6 +144,12 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
         nodes = [node.get_contained_object() for node in ubergraph.graph.nodes()]
 
     print(f"Processes: {processes}")
+    try:
+        args._d4py_processes = processes
+        args._d4py_input_mappings = input_mappings
+        args._d4py_output_mappings = output_mappings
+    except Exception:
+        pass
 
     process_pes = {}
     queues = {}
@@ -159,7 +166,6 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
         for proc in processes[pe.id]:
             cp = copy.deepcopy(pe)
             cp.rank = proc
-            cp.log = types.MethodType(simple_logger, cp)
             wrapper = MultiProcessingWrapper(proc, cp, provided_inputs)
             process_pes[proc] = wrapper
             wrapper.input_queue = multiprocessing.Queue()
