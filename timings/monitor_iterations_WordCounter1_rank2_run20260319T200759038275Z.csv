@@ -1,0 +1,3 @@
+pe_id,rank,instance_id,iteration_index,iteration_secs
+WordCounter1,2,WordCounter1@2,1,4.0531158447265625e-06
+WordCounter1,2,WordCounter1@2,2,2.1457672119140625e-06

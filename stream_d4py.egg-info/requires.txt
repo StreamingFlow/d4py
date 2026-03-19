@@ -1,0 +1,12 @@
+flake8
+networkx
+pyzmq
+redis
+regex
+tqdm
+urllib3
+setuptools
+coloredlogs
+ujson
+jwt
+numpy

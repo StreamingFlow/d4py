@@ -1,0 +1,2 @@
+[console_scripts]
+dispel4py = dispel4py.new.processor:main
