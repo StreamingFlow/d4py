@@ -1,4 +1,4 @@
-more# dispel4py Monitoring Guide
+# dispel4py Monitoring Guide
 
 This document explains the three monitoring-enabled mappings:
 
@@ -46,16 +46,18 @@ All three timed mappings produce:
 
 ## `timed_multi` (local parallel)
 
-Basic example (as requested):
+Basic example:
 
 ```bash
-dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 --
+dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 
 ```
+**Note** that if we do not specify `--timing-dir` directory, it will create automatically and store traces in `./timings` directory. 
 
-Recommended explicit version:
+Recommended explicit version 
 
 ```bash
 dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 --print-shape
+
 ```
 
 Custom output location:
