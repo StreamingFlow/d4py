@@ -920,17 +920,45 @@ class ProvenanceType(GenericPE):
             if self.impcls is not None and isinstance(self, self.impcls):
                 if hasattr(self, "params"):
                     self.parameters = deepcopy(self.params)
-                input_name = getattr(self.impcls, "INPUT_NAME", None)
-                output_name = getattr(self.impcls, "OUTPUT_NAME", None)
+                input_name = getattr(
+                    self.impcls,
+                    "INPUT_NAME",
+                    getattr(self.impcls, "input_name", None),
+                )
+                output_name = getattr(
+                    self.impcls,
+                    "OUTPUT_NAME",
+                    getattr(self.impcls, "output_name", None),
+                )
+
+                proc_input = inputs
                 if (
                     input_name is not None
                     and isinstance(inputs, dict)
                     and input_name in inputs
                 ):
-                    result = self._process(inputs[input_name])
+                    proc_input = inputs[input_name]
+
+                # Prefer the original PE implementation if available.
+                if (
+                    hasattr(self.impcls, "_process")
+                    and self.impcls._process is not GenericPE._process
+                ):
+                    result = self.impcls._process(self, proc_input)
+                elif (
+                    hasattr(self.impcls, "process")
+                    and self.impcls.process is not GenericPE.process
+                    and not issubclass(self.impcls, ProvenanceType)
+                ):
+                    result = self.impcls.process(self, inputs)
                 else:
-                    result = self._process(inputs)
-                if result is not None and output_name is not None:
+                    result = self._process(proc_input)
+
+                if (
+                    result is not None
+                    and output_name is not None
+                    and not isinstance(result, dict)
+                ):
                     self.log(self.impcls)
                     self.writeResults(output_name, result)
                     result = None
@@ -939,8 +967,17 @@ class ProvenanceType(GenericPE):
                 result = self._process(inputs)
 
             if result is not None:
-                for x in result:
-                    self.writeResults(x, result[x])
+                if isinstance(result, dict):
+                    for x in result:
+                        self.writeResults(x, result[x])
+                else:
+                    output_name = getattr(
+                        self.impcls,
+                        "OUTPUT_NAME",
+                        getattr(self.impcls, "output_name", None),
+                    )
+                    if output_name is not None:
+                        self.writeResults(output_name, result)
 
         except Exception:
             self.log(f" Compute Error: {traceback.format_exc()}")
@@ -1936,7 +1973,10 @@ def injectProv(
         print(
             f"Assigning Provenance Type to: \r{object.name} Original base class: {object.__class__.__bases__}",
         )
-        parent = object.__class__.__bases__[0]
+        # Keep the original PE class for later dispatch in ProvenanceType.
+        # Using only the base class (e.g., GenericPE) can hide user-defined
+        # process/_process implementations.
+        parent = object.__class__
         localname = object.name
 
         if componentsType is not None and object.name in componentsType:
