@@ -252,3 +252,6 @@ Quick intuition:
 - If matplotlib is unavailable or incompatible, PNGs may be skipped.
 - JSON and CSV outputs are still generated even when PNGs are skipped.
 - `run_id` is timestamp-based and includes microseconds to avoid collisions between rapid consecutive runs.
+- If you are benchmarking performance, prefer `timed_*` **without** provenance enabled.  
+  Provenance instrumentation adds extra work and may also change multiprocessing behavior/platform scheduling, so wall-clock comparisons can become misleading.
+- If you need both traceability and timings, run `timed_* + provenance`, but treat those timings as provenance-aware operational traces (not clean baseline performance numbers).
