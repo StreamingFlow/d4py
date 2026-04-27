@@ -247,7 +247,11 @@ Quick intuition:
 - If `p95_secs` is much larger than `p50_secs`, latency is bursty/has outliers.
 - If `max_secs` is far above `p95_secs`, there may be rare extreme slow iterations.
 
-## 10. Notes
+## Tutorial
+
+Notebook tutorial available at [here](https://colab.research.google.com/drive/1nlwvYh2hBjPuorGAzq2TjbvzD7n5azyS?usp=sharing)
+
+## 11. Notes
 
 - If matplotlib is unavailable or incompatible, PNGs may be skipped.
 - JSON and CSV outputs are still generated even when PNGs are skipped.

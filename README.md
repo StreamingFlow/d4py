@@ -113,6 +113,8 @@ The mappings of dispel4py refer to the connections between the processing elemen
 For the monitoring-enabled mappings (`timed_simple`, `timed_multi`, `timed_mpi`) and a full explanation of generated timing/latency/graph files, see [README_Monitor.md](README_Monitor.md).
 
 
+Notebook tutorial for monitoring dispel4py workflows available at [here](https://colab.research.google.com/drive/1nlwvYh2hBjPuorGAzq2TjbvzD7n5azyS?usp=sharing)
+
 ## Examples
 
 [This directory](https://github.com/StreamingFlow/d4py/tree/main/dispel4py/examples/graph_testing) contains a collection of dispel4py workflows used for testing and validating the functionalities and behavior of dataflow graphs. These workflows are primarily used for testing purposes and ensure that the different mappings (e.g., simple, MPI, Storm) and various features of dispel4py work as expected. They help in verifying the correctness and efficiency of dataflow graphs during development and maintenance of the dispel4py library
