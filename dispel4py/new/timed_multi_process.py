@@ -32,6 +32,7 @@ import glob
 import io
 import json
 import os
+import time
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Any
@@ -39,7 +40,11 @@ from typing import Any
 import networkx as nx
 
 from dispel4py.new import multi_process
-from dispel4py.new.monitoring import Timer
+from dispel4py.new.resource_monitoring import (
+    IDENTITY_FIELDS, ITERATION_RESOURCE_FIELDS, SUMMARY_RESOURCE_FIELDS,
+    ResourceProbe, check_resource_dependency, identity, resource_summary,
+    sampling_interval,
+)
 
 
 def _default_run_id() -> str:
@@ -49,6 +54,34 @@ def _default_run_id() -> str:
 def _safe_token(value: Any) -> str:
     token = "".join(c if c.isalnum() or c in "._-" else "_" for c in str(value))
     return token.strip("._") or "unknown"
+
+
+def _prepare_monitoring_run(args):
+    """Reject reused run IDs instead of mixing old and new worker files."""
+    os.makedirs(args.timing_dir, exist_ok=True)
+    marker = os.path.join(args.timing_dir,
+                          f"{args.timing_prefix}_resources_run{args.timing_run_id}.json")
+    pattern = os.path.join(args.timing_dir,
+                           f"{args.timing_prefix}_*_rank*_run{args.timing_run_id}.csv")
+    if glob.glob(pattern):
+        raise FileExistsError("Monitoring run already exists; choose a new --run-id or --timing-dir")
+    if not getattr(args, "no_resource_monitoring", False):
+        check_resource_dependency()
+    metadata = {
+        "schema_version": 2, "run_id": args.timing_run_id, "mapping": args._monitor_mapping,
+        "resource_enabled": not getattr(args, "no_resource_monitoring", False),
+        "memory_sampling_interval_secs": getattr(args, "memory_sampling_interval", 0.01),
+        "measurement_window": "successful PE.process calls only",
+        "cpu_scope": "process_during_call", "memory_scope": "process_rss_during_call",
+        "cpu_clock": "time.process_time_ns", "wall_clock": "time.perf_counter_ns",
+        "cpu_clock_resolution_secs": time.get_clock_info("process_time").resolution,
+        "rss_aggregation": "max observed process RSS; never sum across PEs or instances",
+    }
+    try:
+        with open(marker, "x", encoding="utf-8") as output:
+            json.dump(metadata, output, indent=2)
+    except FileExistsError as exc:
+        raise FileExistsError("Monitoring run already exists; choose a new --run-id or --timing-dir") from exc
 
 
 def _resolve_output_path(base_dir: str, file_name: str) -> str:
@@ -91,23 +124,26 @@ def _latency_stats(values: list[float]) -> dict[str, float]:
 
 class CsvProcessTimingPE:
     _LOCAL_ATTRS = {
-        "baseObject",
-        "_timing_dir",
-        "_timing_prefix",
-        "_timing_run_id",
-        "times_total",
-        "times_count",
-        "iteration_times",
+        "baseObject", "_timing_dir", "_timing_prefix", "_timing_run_id",
+        "times_total", "times_count", "iteration_times", "iteration_resources",
+        "_resource_enabled", "_memory_interval", "_resource_probe", "_mapping",
     }
 
-    def __init__(self, base_object, timing_dir: str, timing_prefix: str, run_id: str):
+    def __init__(self, base_object, timing_dir: str, timing_prefix: str, run_id: str,
+                 resource_enabled=True, memory_interval=0.01, mapping="unknown"):
         self.baseObject = base_object
         self._timing_dir = timing_dir
         self._timing_prefix = timing_prefix
         self._timing_run_id = run_id
+        self._resource_enabled = resource_enabled
+        self._memory_interval = memory_interval
+        self._mapping = mapping
+        # No process handles/threads in the parent: deepcopy/spawn remains safe.
+        self._resource_probe = None
         self.times_total = 0.0
         self.times_count = 0
         self.iteration_times = []
+        self.iteration_resources = []
 
     def __getattr__(self, name):
         base_object = self.__dict__.get("baseObject")
@@ -122,47 +158,52 @@ class CsvProcessTimingPE:
         setattr(self.baseObject, name, value)
 
     def process(self, inputs):
-        with Timer() as timer:
+        resources = {}
+        if self._resource_enabled:
+            if self._resource_probe is None:
+                self._resource_probe = ResourceProbe(self._memory_interval)
+            start = self._resource_probe.begin()
+            try:
+                result = self.baseObject.process(inputs)
+            except BaseException:
+                # Do not leave an active sampler behind if a PE raises.
+                self._resource_probe.close()
+                self._resource_probe = None
+                raise
+            elapsed, resources = self._resource_probe.end(start)
+        else:
+            start = time.perf_counter_ns()
             result = self.baseObject.process(inputs)
-        self.times_total += timer.secs
+            elapsed = (time.perf_counter_ns() - start) / 1e9
+        self.times_total += elapsed
         self.times_count += 1
-        self.iteration_times.append(timer.secs)
+        self.iteration_times.append(elapsed)
+        self.iteration_resources.append(resources)
         return result
 
     def _timing_postprocess(self):
         pe_id = getattr(self, "id", "PE")
         rank = getattr(self, "rank", "NA")
-        avg = (self.times_total / self.times_count) if self.times_count else 0.0
-
-        os.makedirs(self._timing_dir, exist_ok=True)
-        filename = (
-            f"{self._timing_prefix}_{_safe_token(pe_id)}_rank{_safe_token(rank)}"
-            f"_run{self._timing_run_id}.csv"
-        )
-        output_path = os.path.join(self._timing_dir, filename)
-        write_header = not os.path.exists(output_path)
-
-        with open(output_path, "a", newline="", encoding="utf-8") as output_file:
-            writer = csv.writer(output_file)
-            if write_header:
-                writer.writerow(["pe_id", "rank", "count", "total_secs", "avg_secs"])
-            writer.writerow([pe_id, rank, self.times_count, self.times_total, avg])
-
-        iteration_file = (
-            f"{self._timing_prefix}_iterations_{_safe_token(pe_id)}"
-            f"_rank{_safe_token(rank)}_run{self._timing_run_id}.csv"
-        )
-        iteration_path = os.path.join(self._timing_dir, iteration_file)
-        iteration_header = not os.path.exists(iteration_path)
-        with open(iteration_path, "a", newline="", encoding="utf-8") as output_file:
-            writer = csv.writer(output_file)
-            if iteration_header:
-                writer.writerow(
-                    ["pe_id", "rank", "instance_id", "iteration_index", "iteration_secs"],
-                )
-            for index, value in enumerate(self.iteration_times, start=1):
-                writer.writerow([pe_id, rank, f"{pe_id}@{rank}", index, value])
-
+        avg = self.times_total / self.times_count if self.times_count else 0.0
+        context = identity(self._timing_run_id, self._mapping, self._resource_enabled)
+        rows = [dict(pe_id=pe_id, rank=rank, instance_id=f"{pe_id}@{rank}",
+                     iteration_index=index, iteration_secs=elapsed, **context, **resources)
+                for index, (elapsed, resources) in enumerate(
+                    zip(self.iteration_times, self.iteration_resources), start=1)]
+        filename = (f"{self._timing_prefix}_{_safe_token(pe_id)}_rank{_safe_token(rank)}"
+                    f"_run{self._timing_run_id}.csv")
+        summary = dict(pe_id=pe_id, rank=rank, count=self.times_count,
+                       total_secs=self.times_total, avg_secs=avg)
+        summary.update(resource_summary(rows, [context]))
+        summary.update(context)
+        fields = ["pe_id", "rank", "count", "total_secs", "avg_secs"]
+        fields += list(dict.fromkeys(IDENTITY_FIELDS + SUMMARY_RESOURCE_FIELDS))
+        _write_csv(os.path.join(self._timing_dir, filename), fields, [summary])
+        iteration_file = (f"{self._timing_prefix}_iterations_{_safe_token(pe_id)}"
+                          f"_rank{_safe_token(rank)}_run{self._timing_run_id}.csv")
+        fields = ["pe_id", "rank", "instance_id", "iteration_index", "iteration_secs"]
+        _write_csv(os.path.join(self._timing_dir, iteration_file),
+                   fields + ITERATION_RESOURCE_FIELDS, rows)
         try:
             self.log(f"Average processing time: {avg}")
         except Exception:
@@ -172,7 +213,19 @@ class CsvProcessTimingPE:
         try:
             self.baseObject.postprocess()
         finally:
+            if self._resource_probe is not None:
+                self._resource_probe.close()
+                self._resource_probe = None
             self._timing_postprocess()
+
+
+def _write_csv(path, fields, rows):
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as output:
+        writer = csv.DictWriter(output, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+    return path
 
 
 def _capture_abstract_shape(workflow) -> dict[str, Any]:
@@ -314,6 +367,8 @@ def _print_concrete_shape(shape_data: dict[str, Any]) -> None:
 
 
 def _instrument_graph(workflow, args) -> int:
+    if not getattr(args, "no_resource_monitoring", False):
+        check_resource_dependency()
     replacements = {}
     wrapped = 0
     for node in workflow.graph.nodes():
@@ -323,6 +378,9 @@ def _instrument_graph(workflow, args) -> int:
             timing_dir=args.timing_dir,
             timing_prefix=args.timing_prefix,
             run_id=args.timing_run_id,
+            resource_enabled=not getattr(args, "no_resource_monitoring", False),
+            memory_interval=getattr(args, "memory_sampling_interval", 0.01),
+            mapping=getattr(args, "_monitor_mapping", "unknown"),
         )
         node.obj = wrapped_pe
         replacements[base_pe] = wrapped_pe
@@ -343,279 +401,125 @@ def _instrument_graph(workflow, args) -> int:
 
 
 def _load_timing_rows(args) -> list[dict[str, Any]]:
-    pattern = os.path.join(
-        args.timing_dir,
-        f"{args.timing_prefix}_*_rank*_run{args.timing_run_id}.csv",
-    )
-    timing_rows = []
-    for timing_file in sorted(glob.glob(pattern)):
-        if os.path.basename(timing_file).startswith(f"{args.timing_prefix}_iterations_"):
+    pattern = os.path.join(args.timing_dir,
+                           f"{args.timing_prefix}_*_rank*_run{args.timing_run_id}.csv")
+    rows = []
+    for path in sorted(glob.glob(pattern)):
+        if os.path.basename(path).startswith(f"{args.timing_prefix}_iterations_"):
             continue
-        with open(timing_file, newline="", encoding="utf-8") as input_file:
-            reader = csv.DictReader(input_file)
-            for row in reader:
-                timing_rows.append(
-                    {
-                        "pe_id": row.get("pe_id", "unknown"),
-                        "rank": str(row.get("rank", "NA")),
-                        "count": int(row.get("count", 0)),
-                        "total_secs": float(row.get("total_secs", 0.0)),
-                    },
-                )
-    return timing_rows
+        with open(path, newline="", encoding="utf-8") as source:
+            for row in csv.DictReader(source):
+                row.update(count=int(row["count"]), total_secs=float(row["total_secs"]))
+                rows.append(row)
+    return rows
 
 
 def _load_iteration_rows(args) -> list[dict[str, Any]]:
-    pattern = os.path.join(
-        args.timing_dir,
-        f"{args.timing_prefix}_iterations_*_rank*_run{args.timing_run_id}.csv",
-    )
-    iteration_rows = []
-    for iteration_file in sorted(glob.glob(pattern)):
-        with open(iteration_file, newline="", encoding="utf-8") as input_file:
-            reader = csv.DictReader(input_file)
-            for row in reader:
-                iteration_rows.append(
-                    {
-                        "pe_id": row.get("pe_id", "unknown"),
-                        "rank": str(row.get("rank", "NA")),
-                        "instance_id": row.get("instance_id", "unknown"),
-                        "iteration_index": int(row.get("iteration_index", 0)),
-                        "iteration_secs": float(row.get("iteration_secs", 0.0)),
-                    },
-                )
-    return iteration_rows
+    pattern = os.path.join(args.timing_dir,
+                           f"{args.timing_prefix}_iterations_*_rank*_run{args.timing_run_id}.csv")
+    rows = []
+    for path in sorted(glob.glob(pattern)):
+        with open(path, newline="", encoding="utf-8") as source:
+            for row in csv.DictReader(source):
+                row.update(iteration_index=int(row["iteration_index"]),
+                           iteration_secs=float(row["iteration_secs"]))
+                rows.append(row)
+    return rows
 
 
-def _write_instance_summary(
-    args,
-    timing_rows: list[dict[str, Any]],
-    iteration_rows: list[dict[str, Any]],
-) -> str | None:
+_LATENCY_FIELDS = ["min_secs", "p50_secs", "p95_secs", "max_secs"]
+_TOTAL_FIELDS = ["total_count", "total_secs", "avg_secs"] + _LATENCY_FIELDS
+
+
+def _latency_columns(values):
+    return {f"{key}_secs": value for key, value in _latency_stats(values).items()}
+
+
+def _write_aggregate(args, timing_rows, iteration_rows, by_pe=False):
     if not timing_rows:
         return None
+    def key(row):
+        return (row["pe_id"],) if by_pe else (row["pe_id"], str(row["rank"]))
 
-    grouped = defaultdict(lambda: {"total_count": 0, "total_secs": 0.0})
+    totals, calls = defaultdict(list), defaultdict(list)
     for row in timing_rows:
-        key = (row["pe_id"], row["rank"])
-        grouped[key]["total_count"] += row["count"]
-        grouped[key]["total_secs"] += row["total_secs"]
-    iteration_grouped = defaultdict(list)
+        totals[key(row)].append(row)
     for row in iteration_rows:
-        key = (row["pe_id"], row["rank"])
-        iteration_grouped[key].append(row["iteration_secs"])
-
-    summary_file = (
-        args.instance_summary_file
-        or f"{args.timing_prefix}_instances_run{args.timing_run_id}.csv"
-    )
-    summary_path = _resolve_output_path(args.timing_dir, summary_file)
-
-    with open(summary_path, "w", newline="", encoding="utf-8") as output_file:
-        writer = csv.writer(output_file)
-        writer.writerow(
-            [
-                "pe_id",
-                "rank",
-                "instance_id",
-                "total_count",
-                "total_secs",
-                "avg_secs",
-                "min_secs",
-                "p50_secs",
-                "p95_secs",
-                "max_secs",
-            ],
-        )
-        ordered_keys = sorted(grouped, key=lambda item: (item[0], _rank_sort_token(item[1])))
-        for pe_id, rank in ordered_keys:
-            entry = grouped[(pe_id, rank)]
-            avg = entry["total_secs"] / entry["total_count"] if entry["total_count"] else 0.0
-            lat = _latency_stats(iteration_grouped.get((pe_id, rank), []))
-            writer.writerow(
-                [
-                    pe_id,
-                    rank,
-                    f"{pe_id}@{rank}",
-                    entry["total_count"],
-                    entry["total_secs"],
-                    avg,
-                    lat["min"],
-                    lat["p50"],
-                    lat["p95"],
-                    lat["max"],
-                ],
-            )
-
-    return summary_path
+        calls[key(row)].append(row)
+    rows = []
+    for group in sorted(totals, key=lambda k: (k[0], _rank_sort_token(k[-1]))):
+        contexts = totals[group]
+        observations = calls[group]
+        count = sum(r["count"] for r in contexts)
+        total = sum(r["total_secs"] for r in contexts)
+        row = dict(pe_id=group[0], total_count=count, total_secs=total,
+                   avg_secs=total / count if count else 0.0)
+        if by_pe:
+            ranks = sorted({str(r["rank"]) for r in contexts}, key=_rank_sort_token)
+            row.update(rank_count=len(ranks), ranks=";".join(ranks))
+        else:
+            row.update(rank=group[1], instance_id=f"{group[0]}@{group[1]}")
+        row.update(_latency_columns([r["iteration_secs"] for r in observations]))
+        row.update(resource_summary(observations, contexts))
+        rows.append(row)
+    if by_pe:
+        filename = args.summary_file or f"{args.timing_prefix}_summary_run{args.timing_run_id}.csv"
+        fields = ["pe_id", "rank_count", "ranks"]
+    else:
+        filename = args.instance_summary_file or f"{args.timing_prefix}_instances_run{args.timing_run_id}.csv"
+        fields = ["pe_id", "rank", "instance_id"]
+    return _write_csv(_resolve_output_path(args.timing_dir, filename),
+                      fields + _TOTAL_FIELDS + SUMMARY_RESOURCE_FIELDS, rows)
 
 
-def _write_iteration_summary(args, iteration_rows: list[dict[str, Any]]) -> str | None:
+def _write_instance_summary(args, timing_rows, iteration_rows):
+    return _write_aggregate(args, timing_rows, iteration_rows)
+
+
+def _write_pe_summary(args, timing_rows, iteration_rows):
+    return _write_aggregate(args, timing_rows, iteration_rows, by_pe=True)
+
+
+def _write_iteration_summary(args, iteration_rows):
     if not iteration_rows:
         return None
-
-    summary_file = (
-        args.iteration_summary_file
-        or f"{args.timing_prefix}_iteration_timings_run{args.timing_run_id}.csv"
-    )
-    summary_path = _resolve_output_path(args.timing_dir, summary_file)
-    stats_by_instance = defaultdict(list)
+    groups = defaultdict(list)
     for row in iteration_rows:
-        stats_by_instance[(row["pe_id"], row["rank"], row["instance_id"])].append(
-            row["iteration_secs"],
-        )
-
-    ordered = sorted(
-        iteration_rows,
-        key=lambda row: (row["pe_id"], _rank_sort_token(row["rank"]), row["iteration_index"]),
-    )
-    with open(summary_path, "w", newline="", encoding="utf-8") as output_file:
-        writer = csv.writer(output_file)
-        writer.writerow(
-            [
-                "pe_id",
-                "rank",
-                "instance_id",
-                "iteration_index",
-                "iteration_secs",
-                "instance_p50_secs",
-                "instance_p95_secs",
-                "instance_max_secs",
-            ],
-        )
-        for row in ordered:
-            lat = _latency_stats(
-                stats_by_instance[(row["pe_id"], row["rank"], row["instance_id"])],
-            )
-            writer.writerow(
-                [
-                    row["pe_id"],
-                    row["rank"],
-                    row["instance_id"],
-                    row["iteration_index"],
-                    row["iteration_secs"],
-                    lat["p50"],
-                    lat["p95"],
-                    lat["max"],
-                ],
-            )
-
-    return summary_path
+        groups[(row["pe_id"], row["rank"])].append(row["iteration_secs"])
+    stats = {key: _latency_stats(values) for key, values in groups.items()}
+    rows = []
+    for raw in sorted(iteration_rows, key=lambda r: (r["pe_id"], _rank_sort_token(r["rank"]), r["iteration_index"])):
+        row = dict(raw)
+        lat = stats[(row["pe_id"], row["rank"])]
+        row.update({f"instance_{k}_secs": lat[k] for k in ("p50", "p95", "max")})
+        rows.append(row)
+    fields = ["pe_id", "rank", "instance_id", "iteration_index", "iteration_secs",
+              "instance_p50_secs", "instance_p95_secs", "instance_max_secs"]
+    filename = args.iteration_summary_file or f"{args.timing_prefix}_iteration_timings_run{args.timing_run_id}.csv"
+    return _write_csv(_resolve_output_path(args.timing_dir, filename),
+                      fields + ITERATION_RESOURCE_FIELDS, rows)
 
 
-def _write_iteration_latency_summary(args, iteration_rows: list[dict[str, Any]]) -> str | None:
+def _write_iteration_latency_summary(args, iteration_rows):
     if not iteration_rows:
         return None
-
-    summary_file = (
-        args.iteration_latency_summary_file
-        or f"{args.timing_prefix}_iteration_timings_summary_run{args.timing_run_id}.csv"
-    )
-    summary_path = _resolve_output_path(args.timing_dir, summary_file)
-
-    grouped = defaultdict(list)
+    groups = defaultdict(list)
     for row in iteration_rows:
-        grouped[(row["pe_id"], row["rank"], row["instance_id"])].append(row["iteration_secs"])
-
-    with open(summary_path, "w", newline="", encoding="utf-8") as output_file:
-        writer = csv.writer(output_file)
-        writer.writerow(
-            [
-                "pe_id",
-                "rank",
-                "instance_id",
-                "iteration_count",
-                "total_secs",
-                "avg_secs",
-                "min_secs",
-                "p50_secs",
-                "p95_secs",
-                "max_secs",
-            ],
-        )
-        ordered_keys = sorted(grouped, key=lambda item: (item[0], _rank_sort_token(item[1])))
-        for pe_id, rank, instance_id in ordered_keys:
-            values = grouped[(pe_id, rank, instance_id)]
-            total = sum(values)
-            count = len(values)
-            avg = total / count if count else 0.0
-            lat = _latency_stats(values)
-            writer.writerow(
-                [
-                    pe_id,
-                    rank,
-                    instance_id,
-                    count,
-                    total,
-                    avg,
-                    lat["min"],
-                    lat["p50"],
-                    lat["p95"],
-                    lat["max"],
-                ],
-            )
-
-    return summary_path
-
-
-def _write_pe_summary(
-    args,
-    timing_rows: list[dict[str, Any]],
-    iteration_rows: list[dict[str, Any]],
-) -> str | None:
-    if not timing_rows:
-        return None
-
-    grouped = defaultdict(lambda: {"ranks": set(), "total_count": 0, "total_secs": 0.0})
-    for row in timing_rows:
-        pe_id = row["pe_id"]
-        grouped[pe_id]["ranks"].add(str(row["rank"]))
-        grouped[pe_id]["total_count"] += row["count"]
-        grouped[pe_id]["total_secs"] += row["total_secs"]
-    iteration_grouped = defaultdict(list)
-    for row in iteration_rows:
-        iteration_grouped[row["pe_id"]].append(row["iteration_secs"])
-
-    summary_file = args.summary_file or f"{args.timing_prefix}_summary_run{args.timing_run_id}.csv"
-    summary_path = _resolve_output_path(args.timing_dir, summary_file)
-
-    with open(summary_path, "w", newline="", encoding="utf-8") as output_file:
-        writer = csv.writer(output_file)
-        writer.writerow(
-            [
-                "pe_id",
-                "rank_count",
-                "ranks",
-                "total_count",
-                "total_secs",
-                "avg_secs",
-                "min_secs",
-                "p50_secs",
-                "p95_secs",
-                "max_secs",
-            ],
-        )
-        for pe_id in sorted(grouped):
-            entry = grouped[pe_id]
-            ordered_ranks = sorted(entry["ranks"], key=_rank_sort_token)
-            avg = entry["total_secs"] / entry["total_count"] if entry["total_count"] else 0.0
-            lat = _latency_stats(iteration_grouped.get(pe_id, []))
-            writer.writerow(
-                [
-                    pe_id,
-                    len(entry["ranks"]),
-                    ";".join(ordered_ranks),
-                    entry["total_count"],
-                    entry["total_secs"],
-                    avg,
-                    lat["min"],
-                    lat["p50"],
-                    lat["p95"],
-                    lat["max"],
-                ],
-            )
-
-    return summary_path
+        groups[(row["pe_id"], row["rank"], row["instance_id"])].append(row)
+    rows = []
+    for key in sorted(groups, key=lambda k: (k[0], _rank_sort_token(k[1]))):
+        calls = groups[key]
+        values = [r["iteration_secs"] for r in calls]
+        total = sum(values)
+        row = dict(zip(["pe_id", "rank", "instance_id"], key))
+        row.update(iteration_count=len(values), total_secs=total, avg_secs=total / len(values))
+        row.update(_latency_columns(values))
+        row.update(resource_summary(calls))
+        rows.append(row)
+    filename = args.iteration_latency_summary_file or f"{args.timing_prefix}_iteration_timings_summary_run{args.timing_run_id}.csv"
+    fields = ["pe_id", "rank", "instance_id", "iteration_count", "total_secs", "avg_secs"] + _LATENCY_FIELDS
+    return _write_csv(_resolve_output_path(args.timing_dir, filename),
+                      fields + SUMMARY_RESOURCE_FIELDS, rows)
 
 
 def _persist_graph_figure(args, graph_data: dict[str, Any], output_file: str | None, default_name: str, title: str):
@@ -664,6 +568,14 @@ def _persist_graph_figure(args, graph_data: dict[str, Any], output_file: str | N
 
 
 def add_timing_arguments(parser):
+    parser.add_argument(
+        "--no-resource-monitoring", action="store_true",
+        help="collect elapsed timings only; leave CPU/memory columns empty",
+    )
+    parser.add_argument(
+        "--memory-sampling-interval", type=sampling_interval, default=0.01,
+        help="RSS sampling interval in seconds (default 0.01); 0 = call endpoints only",
+    )
     parser.add_argument(
         "--timing-dir",
         default="timings",
@@ -750,8 +662,9 @@ def parse_args(args, namespace):  # pragma: no cover
 
 
 def process(workflow, inputs, args):
+    args._monitor_mapping = "timed_multi"
     args.timing_run_id = _safe_token(args.timing_run_id or _default_run_id())
-    os.makedirs(args.timing_dir, exist_ok=True)
+    _prepare_monitoring_run(args)
 
     abstract_shape = _capture_abstract_shape(workflow)
     abstract_shape_path = _persist_json(

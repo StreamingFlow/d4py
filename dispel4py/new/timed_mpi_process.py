@@ -27,6 +27,7 @@ from dispel4py.new.timed_multi_process import (
     _load_timing_rows,
     _persist_graph_figure,
     _persist_json,
+    _prepare_monitoring_run,
     _print_abstract_shape,
     _print_concrete_shape,
     _safe_token,
@@ -61,6 +62,7 @@ def parse_args(args, namespace):
 
 
 def process(workflow, inputs, args):
+    args._monitor_mapping = "timed_mpi"
     if args.num_processes is None:
         args.num_processes = mpi_process.size
 
@@ -68,6 +70,15 @@ def process(workflow, inputs, args):
     if mpi_process.rank == 0:
         run_id = _safe_token(args.timing_run_id or _default_run_id())
     args.timing_run_id = mpi_process.comm.bcast(run_id, root=0)
+    error = None
+    if mpi_process.rank == 0:
+        try:
+            _prepare_monitoring_run(args)
+        except Exception as exc:
+            error = str(exc)
+    error = mpi_process.comm.bcast(error, root=0)
+    if error:
+        raise RuntimeError(error)
     os.makedirs(args.timing_dir, exist_ok=True)
 
     abstract_shape = None

@@ -11,3 +11,4 @@ ujson
 jwt
 numpy
 matplotlib
+psutil>=5.9

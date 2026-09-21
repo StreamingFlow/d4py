@@ -1,261 +1,335 @@
-# dispel4py Monitoring Guide
+# dispel4py monitoring: time, CPU and memory
 
-This document explains the three monitoring-enabled mappings:
+The monitoring mappings `timed_simple`, `timed_multi` and `timed_mpi` run the
+corresponding workflow mapping and record elapsed time, process CPU time and
+process memory observations. Ordinary `simple`, `multi` and `mpi` remain
+uninstrumented. Use their `timed_*` equivalents to enable monitoring.
 
-- `timed_multi`
-- `timed_simple`
-- `timed_mpi`
+Resource monitoring is enabled by default in this extension. Existing timing
+columns and graph outputs are retained, with extra resource columns appended.
 
-These mappings run your workflow and automatically produce timing and graph artifacts under a monitoring output directory (default: `timings/`).
+## 1. Abstract PE, PE instance and processing call
 
-## 1. What These Mappings Are For
+| Level | Example | Meaning |
+|---|---|---|
+| Abstract PE | `ParallelLLMSensorAgentPE4` | One logical node in the workflow. Its summary pools observations from all its runtime instances. |
+| PE instance | `ParallelLLMSensorAgentPE4@9` | That logical PE executing at rank 9. Other replicas might be `@10`, `@11` and `@12`. |
+| Processing call | Instance `@9`, iteration 2 | One invocation of that instance's `process(inputs)` method. |
 
-### `timed_simple`
-Use this for sequential/local debugging and baseline measurements.
+`pe_id` identifies a graph node, **not a Python class**. Two graph nodes created
+from the same class remain separate abstract PEs. `instance_id` is `pe_id@rank`
+and is unique within a run. Include `run_id` when combining different runs.
 
-- Runs workflow in a single Python process (simple mapping behavior).
-- Best when you want easy reproducibility and low setup complexity.
-- Good for checking logic and quick latency checks before parallel runs.
+In `timed_simple`, ranks are logical PE positions: several different ranks share
+one actual OS process. In normal `timed_multi`, each instance has its own worker
+process. In normal `timed_mpi`, each instance executes in an MPI rank. The trace
+also records `hostname` and OS `pid`, so process identity is not confused with
+logical rank. Partitioned execution can place several PEs in one process.
 
-### `timed_multi`
-Use this for local multiprocessing performance analysis.
+## 2. Installation and commands
 
-- Runs workflow with Python multiprocessing.
-- Uses mapping/process allocation logic from `multi`.
-- Best for measuring how PE instance distribution and local parallelism affect timing.
-
-### `timed_mpi`
-Use this for MPI/distributed performance analysis.
-
-- Runs workflow with MPI ranks.
-- Best for cluster/HPC-style runs or true distributed execution.
-- Launch with `mpiexec`/`mpirun`.
-
-## 2. Common Output Goal
-
-All three timed mappings produce:
-
-- Per-instance totals and averages.
-- Per-iteration timings for each PE instance.
-- Aggregate summaries with latency statistics (`min`, `p50`, `p95`, `max`).
-- Abstract graph shape (workflow as defined by user).
-- Concrete graph shape (runtime PE instances and edges).
-- Optional PNG figures for abstract and concrete graphs.
-
-## 3. Command Examples
-
-## `timed_multi` (local parallel)
-
-Basic example:
+From the updated repository:
 
 ```bash
-dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 
+python -m pip install -e .
 ```
-**Note** that if we do not specify `--timing-dir` directory, it will create automatically and store traces in `./timings` directory. 
 
-Recommended explicit version 
+The new dependency is `psutil>=5.9`, included in `requirements.txt`. MPI additionally
+requires a working MPI runtime and a compatible `mpi4py` installation on every
+participating node. Use the MPI stack recommended by your cluster.
+
+The included offline example needs no API keys or external services:
 
 ```bash
-dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 --print-shape
+# Sequential: one source, one compute PE, one waiting PE in one OS process.
+dispel4py timed_simple dispel4py.examples.graph_testing.resource_monitoring_demo \
+  -i 8 --timing-dir monitoring_simple
 
+# Multiprocessing: one source, two compute instances, one waiting instance.
+dispel4py timed_multi dispel4py.examples.graph_testing.resource_monitoring_demo \
+  -i 8 -n 4 --timing-dir monitoring_multi
+
+# MPI: the same four-instance parallel allocation.
+mpiexec -n 4 dispel4py timed_mpi dispel4py.examples.graph_testing.resource_monitoring_demo \
+  -i 8 --timing-dir monitoring_mpi
 ```
 
-Custom output location:
+Replace the example module with your workflow module or Python file. Existing
+input flags such as `-f sensor_data.json` and `-i` continue to work. You can also
+replace `dispel4py` with `python -m dispel4py.new.processor`.
+
+**MPI output directory:** all ranks must see the same shared `--timing-dir` path.
+Workers write their files, synchronize at the existing MPI barrier, and rank 0
+reads and aggregates them. This implementation does not gather files from
+node-local disks. Use a shared filesystem for multi-node runs.
+
+### Resource options
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--memory-sampling-interval SECONDS` | `0.01` | Best-effort RSS sampling during processing calls, in addition to call-boundary readings. |
+| `--memory-sampling-interval 0` | — | Read RSS only before and after each call; no background sampler thread. |
+| `--no-resource-monitoring` | Off | Record elapsed time only. Resource measurements remain empty in the CSVs. |
+
+For example:
 
 ```bash
-dispel4py timed_multi dispel4py.examples.graph_testing.word_count -i 10 -n 10 \
-  --timing-dir timings_wc --timing-prefix wc_monitor
+# 5 ms target sampling interval.
+dispel4py timed_multi your_workflow.py -i 100 -n 8 \
+  --memory-sampling-interval 0.005 --timing-dir monitoring_5ms
+
+# Timing-only comparison run.
+dispel4py timed_simple your_workflow.py -i 100 \
+  --no-resource-monitoring --timing-dir monitoring_time_only
 ```
 
-## `timed_simple` (sequential)
+Intervals must be finite and nonnegative. Smaller intervals increase overhead
+and do not guarantee that every short-lived allocation will be observed.
+
+## 3. What is measured
+
+Each successful `PE.process(inputs)` call is surrounded by measurements.
+
+| Measurement | Definition |
+|---|---|
+| Elapsed time | Duration of the call from the monotonic `time.perf_counter_ns()` clock. Includes waiting inside the call. |
+| CPU seconds | Difference in `time.process_time_ns()` across the call: OS-accounted user and system CPU time of the current process, including its threads. |
+| CPU percent | `100 × CPU seconds / elapsed seconds`, relative to one logical CPU. |
+| RSS before/after | Resident memory of the current OS process just before/after the call, using `psutil.Process().memory_info().rss`. |
+| RSS change | `RSS after − RSS before`, which can be positive, zero or negative. |
+| Observed RSS peak | Maximum of the boundary readings and successful periodic readings associated with the call. |
+
+CPU measurements use the process executing the PE, not the coordinator process.
+Process handles and sampler threads are created lazily inside the executing
+worker, after copying/spawning the workflow. Each active instance reuses its
+sampler across calls; the sampler sleeps between calls and is stopped during
+postprocessing. No background sampler is created in endpoint-only mode.
+
+### CPU interpretation
+
+- A CPU-bound single-threaded call can approach 100%; a waiting call generally
+  has low CPU utilisation despite a long elapsed time.
+- A process using several native threads can exceed 100%. Percentages are not
+  divided by the host's CPU count.
+- Process CPU includes background threads, MPI progress threads and small
+  monitoring costs occurring during the call. It is not exact exclusive CPU
+  attribution to the PE's Python function.
+- Child-process CPU and remote service/GPU usage are not included. A PE waiting
+  for an external LLM may have long elapsed time and little **local** CPU work.
+- Very short calls can have noisy percentages because the clocks have finite
+  resolution and are read sequentially. Prefer aggregated CPU seconds/percent.
+
+### Memory interpretation
+
+RSS describes the **whole hosting process observed while the PE runs**. It
+includes the Python interpreter, imports, native allocations, buffers, retained
+objects and monitoring data. It is not the size of the PE object or a count of
+bytes exclusively allocated by that PE.
+
+This distinction is essential for `timed_simple`: memory retained by an earlier
+PE can be visible during a later PE's calls. In partitioned multi/MPI execution,
+PEs sharing a worker also share its RSS. Even in a dedicated worker, RSS includes
+the worker runtime and can count shared pages that also appear in another
+process's RSS.
+
+The observed peak is sampled, not an exact peak. Short allocations can be missed;
+the Python GIL, native code and OS scheduling can delay the sampling thread.
+With interval zero, the peak is just `max(before, after)`. It does not use a
+process-lifetime high-water mark that would carry an earlier PE's peak forward.
+RSS may remain high after objects are freed because allocators retain memory.
+
+**Never sum these memory values to claim total workflow memory.** Abstract-PE
+memory summaries describe the observed distribution and maximum across its
+instances; they do not estimate simultaneous aggregate memory consumption.
+
+### Scope and overhead
+
+The window follows the existing timing monitor: successful `process()` calls.
+It excludes explicit `preprocess()`/`postprocess()` execution, input-queue waiting
+outside `process()`, and output forwarding performed by the mapping after
+`process()` returns. Writes and waits made inside `process()` are included.
+A PE whose work is entirely in `postprocess()` is therefore not fully profiled.
+
+Boundary memory reads are outside the reported CPU/time interval, but still add
+to overall run overhead. The sampler, extra CSV columns and buffered iteration
+records also cost CPU/memory. As before, traces are buffered and written during
+postprocessing; very large runs need memory for those records. Aborted/killed
+runs can have incomplete files. Failed calls are not counted as successful
+iterations, and this extension does not change mapping-level failure handling.
+A metadata file marks the run configuration, not successful completion.
+
+## 4. Output files
+
+All files default to `timings/`; the default prefix is `monitor`.
+
+| File | Level/content |
+|---|---|
+| `monitor_<PE>_rank<R>_run<ID>.csv` | One instance: totals plus CPU/memory summary and actual process identity. |
+| `monitor_iterations_<PE>_rank<R>_run<ID>.csv` | Each successful call of one PE instance: elapsed time, CPU and memory observations. |
+| `monitor_instances_run<ID>.csv` | One row per PE instance, including allocated instances that processed no calls. |
+| `monitor_summary_run<ID>.csv` | One row per abstract PE, aggregating its instances. |
+| `monitor_iteration_timings_run<ID>.csv` | All iteration rows, including CPU/memory and instance timing percentiles. |
+| `monitor_iteration_timings_summary_run<ID>.csv` | Instance summaries derived from iteration records. Instances with no calls have no row here. |
+| `monitor_resources_run<ID>.json` | Schema version 2, mapping, clocks, resource settings and attribution rules. |
+| `monitor_shape_run<ID>.json` | Abstract workflow nodes, connections and topological order where available. |
+| `monitor_concrete_shape_run<ID>.json` | Runtime allocation graph. |
+| `monitor_abstract_graph_run<ID>.png` | Optional abstract graph figure. |
+| `monitor_concrete_graph_run<ID>.png` | Optional runtime graph figure. |
+
+The existing graph generation is preserved. With partitioned fallback, concrete
+graphs show partition wrappers; the resource CSVs retain the underlying PE IDs
+and runtime ranks. Use CSV `process_ids` to identify co-located PEs. Ordinary
+unpartitioned executions show the PE instances in the concrete graph.
+
+### Per-call fields
+
+The five original fields are unchanged and remain first:
+`pe_id, rank, instance_id, iteration_index, iteration_secs`.
+
+| Added field | Meaning |
+|---|---|
+| `run_id`, `mapping` | Run and mapping identity. |
+| `hostname`, `pid` | Actual executing OS process. Use both together within a run. |
+| `resource_enabled` | 1 if CPU/memory monitoring is enabled, otherwise 0. |
+| `cpu_secs` | Process CPU seconds consumed during the call. |
+| `cpu_percent` | CPU seconds / elapsed seconds × 100. |
+| `rss_before_bytes`, `rss_after_bytes` | Boundary RSS readings in bytes. |
+| `rss_delta_bytes` | Signed after-minus-before difference. |
+| `rss_peak_observed_bytes` | Largest observed RSS for that call. |
+| `rss_sample_count` | Successful RSS readings, including both endpoints; normally at least 2. |
+| `rss_sample_errors` | Failed periodic RSS reads; inspect before interpreting peaks. Boundary-read failures raise an error. |
+| `memory_sampling_interval_secs` | Configured periodic interval; zero means endpoints only. |
+| `cpu_scope` | `process_during_call`. |
+| `memory_scope` | `process_rss_during_call`. |
+
+The merged iteration file keeps its existing `instance_p50_secs`,
+`instance_p95_secs` and `instance_max_secs` columns before the new fields.
+These are processing-call durations, not end-to-end event latency through the
+whole workflow. An iteration is a call, not necessarily one input record: a
+source call may emit many records.
+
+### Summary fields and aggregation
+
+Existing timing fields are retained: counts, `total_secs`, `avg_secs`,
+`min_secs`, `p50_secs`, `p95_secs`, `max_secs`. The per-worker total file retains
+its original `count` column. The abstract summary retains `rank_count` and `ranks`.
+
+| Added summary field | Aggregation over calls in the instance or abstract PE |
+|---|---|
+| `run_id`, `mapping` | Run/mapping values. |
+| `process_ids`, `process_count` | Distinct `hostname:pid` values and their count, including idle instances where recorded. |
+| `resource_enabled` | Resource configuration reported in source records. |
+| `resource_count` | Number of calls with resource observations. |
+| `total_cpu_secs` | Sum of observed CPU seconds. |
+| `avg_cpu_secs` | Total CPU seconds / resource count. |
+| `cpu_percent` | 100 × summed CPU seconds / summed elapsed seconds **for calls with resource observations**. |
+| `rss_min_bytes` | Minimum call-boundary RSS. |
+| `rss_max_bytes` | Maximum observed RSS across the calls/instances; **not a sum**. |
+| `rss_mean_endpoint_bytes` | Mean of all before and after values, equally weighted per endpoint; not a time-weighted mean. |
+| `rss_delta_mean_bytes` | Mean signed per-call RSS change. |
+| `rss_delta_min_bytes`, `rss_delta_max_bytes` | Minimum/maximum signed per-call RSS change. |
+| `rss_sample_count`, `rss_sample_errors` | Sums of the corresponding call counters. |
+| `memory_sampling_interval_secs` | Distinct configured intervals represented in the observations. |
+| `cpu_scope`, `memory_scope` | Same process-level attribution labels as above. |
+
+CPU percentages are recalculated from totals, not averaged across workers.
+For example, calls using 1 CPU second over 1 elapsed second and 1 CPU second over
+3 elapsed seconds produce `100 × 2 / 4 = 50%`. This is average utilisation during
+processing across the contributing call windows, not combined machine-wide
+utilisation or the number of cores used over whole-run wall time.
+
+Latency percentiles pool all raw call durations of the relevant PE/instance;
+they do not average worker percentiles. Summed elapsed seconds can exceed whole
+workflow elapsed time when instances execute concurrently.
+
+Idle instances have `total_count=0`, `resource_count=0`, and blank CPU/memory
+measurements. Blank means unobserved, not zero memory. Timing-only and older
+traces also have blank resource measurements. Resource values cannot be
+reconstructed retrospectively from timing-only files.
+
+## 5. Relating this to the supplied agentic traces
+
+The supplied September 2026 traces contain timing/count columns, not CPU or
+memory observations. In the multiprocessing run,
+`ParallelLLMSensorAgentPE4` has four instances (`@9`, `@10`, `@11`, `@12`) and
+five processing calls overall. Its recorded 85.71 seconds are summed elapsed
+processing time, **not CPU seconds**.
+
+Rerunning that workflow with the updated `timed_multi` will add resource
+measurements for each of those instances and pool them into the abstract row.
+The existing six timing CSV layouts remain recognizable. The original traces
+remain useful for timing comparison, but cannot supply missing CPU/RSS values.
+
+## 6. Reading results
+
+Choose the exact run you want when several runs share a directory:
+
+```python
+import csv
+from pathlib import Path
+
+path = Path("monitoring_multi/monitor_instances_runYOUR_RUN_ID.csv")
+with path.open(newline="") as source:
+    for row in csv.DictReader(source):
+        cpu = row["total_cpu_secs"] or "not observed"
+        rss = row["rss_max_bytes"]
+        rss_mib = f"{int(rss) / 1024**2:.2f}" if rss else "not observed"
+        print(row["instance_id"], "CPU seconds:", cpu,
+              "max observed process RSS (MiB):", rss_mib)
+```
+
+Use `monitor_summary_run<ID>.csv` instead to compare abstract PEs. Use the merged
+iteration file to inspect outlier calls. RSS bytes / `1024**2` gives MiB.
+
+## 7. Other supported flags
+
+Shared by all three timed mappings:
+
+- `--timing-dir` (default `timings`), `--timing-prefix` (default `monitor`).
+- `--run-id`: optional custom ID; otherwise an automatic UTC timestamp with microseconds.
+- `--summary-file`: abstract-PE summary CSV path.
+- `--instance-summary-file`: PE-instance summary CSV path.
+- `--iteration-summary-file`: merged iteration CSV path.
+- `--iteration-latency-summary-file`: iteration-derived instance summary path.
+- `--shape-file`, `--concrete-shape-file`: graph JSON paths.
+- `--abstract-figure-file`, `--concrete-figure-file`: graph PNG paths.
+- `--no-graph-figures`: skip PNG generation.
+- `--print-shape`: print abstract/concrete topology.
+
+Relative output paths are resolved against `--timing-dir`. A previously used
+prefix/run ID in that directory is rejected to prevent old/new traces being
+mixed. Choose a fresh run ID or directory for another execution.
+
+`timed_multi` accepts `-n`/`--num` and `-s`/`--simple` for the existing partitioned
+fallback. `timed_mpi` accepts `-n`/`--num_processes` (otherwise inferred from MPI
+world size) and `-s`/`--simple`. Keep MPI process count consistent with `mpiexec`.
+`timed_simple` has no process-count flag.
+
+Partition construction and allocation rules are inherited from the original
+mappings. Explicit replicated `numprocesses` settings can exceed the capacity of
+an undersized/partitioned run; the extension does not change that allocator.
+
+PNG figures require compatible matplotlib; CSV and JSON output remains usable
+without figures. For performance comparisons, run without provenance where
+possible. If provenance is enabled, its work contributes to the operational
+measurements. Readers using fixed positional CSV column counts must be updated
+for the appended fields; prefer named columns.
+
+## 8. Validation
 
 ```bash
-dispel4py timed_simple dispel4py.examples.graph_testing.word_count -i 10 --print-shape
+python -m pip install pytest
+python -m pytest -q tests/test_resource_monitoring.py tests/test_resource_monitoring_integration.py
+
+# On a machine with a working MPI runtime, also run the real MPI integration case:
+D4PY_TEST_MPI=1 python -m pytest -q tests/test_resource_monitoring_integration.py
 ```
 
-## `timed_mpi` (MPI/distributed)
+The tests cover CPU versus waiting, transient sampled memory peaks, per-call
+peak reset, weighted aggregation, shared-process identity, idle workers,
+timing-only/endpoint modes, legacy trace loading, sampler cleanup and partitioned
+multiprocessing. The MPI test is opt-in and launches four actual MPI ranks.
+See the accompanying `MONITORING_VALIDATION.md` for the results achieved for this delivery.
 
-```bash
-mpiexec -n 10 dispel4py timed_mpi dispel4py.examples.graph_testing.word_count -i 10 --print-shape
-```
-
-Optional explicit MPI process count:
-
-```bash
-mpiexec -n 10 dispel4py timed_mpi dispel4py.examples.graph_testing.word_count -i 10 --num_processes 10
-```
-
-## 4. Mapping-Specific Flags
-
-### `timed_multi`
-
-- `-n`, `--num`: number of local worker processes.
-- `-s`, `--simple`: force partitioned/simple-style fallback behavior from multi mapping.
-
-### `timed_mpi`
-
-- `-n`, `--num_processes`: number of MPI processes (optional if inferred from MPI world size).
-- `-s`, `--simple`: force partitioned/simple-style fallback behavior.
-
-### `timed_simple`
-
-- No mapping-specific count flag.
-- Uses sequential/simple processing.
-
-## 5. Shared Monitoring Flags (All Three)
-
-- `--timing-dir`: output directory (default: `timings`)
-- `--timing-prefix`: filename prefix (default: `monitor`)
-- `--run-id`: custom run identifier; if omitted, generated automatically
-- `--summary-file`: output path for per-PE summary CSV
-- `--instance-summary-file`: output path for per-instance summary CSV
-- `--iteration-summary-file`: output path for merged per-iteration CSV
-- `--iteration-latency-summary-file`: output path for per-instance latency stats derived from iteration timings
-- `--shape-file`: output path for abstract graph JSON
-- `--concrete-shape-file`: output path for concrete graph JSON
-- `--abstract-figure-file`: output path for abstract graph PNG
-- `--concrete-figure-file`: output path for concrete graph PNG
-- `--no-graph-figures`: skip PNG generation
-- `--print-shape`: print abstract and concrete shape details to stdout
-
-## 6. Understanding Each Generated File
-
-Given a run like:
-
-```bash
-ls -lht timings
-```
-
-You may see files such as:
-
-- `monitor_shape_run<id>.json`
-- `monitor_concrete_shape_run<id>.json`
-- `monitor_summary_run<id>.csv`
-- `monitor_instances_run<id>.csv`
-- `monitor_iteration_timings_run<id>.csv`
-- `monitor_iteration_timings_summary_run<id>.csv`
-- `monitor_<PE>_rank<R>_run<id>.csv`
-- `monitor_iterations_<PE>_rank<R>_run<id>.csv`
-- `monitor_abstract_graph_run<id>.png`
-- `monitor_concrete_graph_run<id>.png`
-
-### `monitor_shape_run<id>.json`
-Abstract workflow graph.
-
-- Represents the user-defined workflow topology.
-- Nodes are logical PEs.
-- Edges are logical workflow connections.
-- Includes topological order when possible.
-
-### `monitor_concrete_shape_run<id>.json`
-Concrete runtime instance graph.
-
-- Represents instantiated PE ranks used in execution.
-- Nodes are PE instances such as `WordCounter1@2`.
-- Edges represent concrete communication paths between ranks.
-- Includes process allocation table and topological order.
-
-### `monitor_<PE>_rank<R>_run<id>.csv`
-Per-instance total timing summary.
-
-- One file per PE instance/rank.
-- Contains `count`, `total_secs`, `avg_secs`.
-- Useful for fast instance-level totals.
-
-### `monitor_iterations_<PE>_rank<R>_run<id>.csv`
-Per-instance per-iteration trace.
-
-- One row per iteration processed by that PE instance.
-- Core file when you need iteration-level latencies.
-
-### `monitor_summary_run<id>.csv`
-Per-PE aggregate summary across all ranks.
-
-- Combines all instances of each PE.
-- Includes:
-  - `total_count`, `total_secs`, `avg_secs`
-  - `min_secs`, `p50_secs`, `p95_secs`, `max_secs`
-
-### `monitor_instances_run<id>.csv`
-Per-PE-instance aggregate summary.
-
-- One row per instance (`PE@rank`).
-- Includes:
-  - `total_count`, `total_secs`, `avg_secs`
-  - `min_secs`, `p50_secs`, `p95_secs`, `max_secs`
-
-### `monitor_iteration_timings_run<id>.csv`
-Merged iteration-level table across all instances.
-
-- Each row is an iteration timing event.
-- Includes iteration latency plus instance-level context columns:
-  - `instance_p50_secs`, `instance_p95_secs`, `instance_max_secs`
-
-### `monitor_iteration_timings_summary_run<id>.csv`
-Latency summary derived from per-iteration data.
-
-- One row per instance.
-- Computed directly from iteration traces.
-- Includes:
-  - `iteration_count`, `total_secs`, `avg_secs`
-  - `min_secs`, `p50_secs`, `p95_secs`, `max_secs`
-
-### `monitor_abstract_graph_run<id>.png`
-Figure of abstract graph.
-
-- Visual of user-defined workflow topology.
-
-### `monitor_concrete_graph_run<id>.png`
-Figure of concrete graph.
-
-- Visual of instantiated runtime graph (ranks/instances).
-
-## 7. Abstract vs Concrete (Key Difference)
-
-Abstract graph:
-
-- What you define in workflow code.
-- Independent of runtime process assignment.
-
-Concrete graph:
-
-- What is actually executed after mapping allocates ranks/instances.
-- Depends on mapping (`simple`, `multi`, `mpi`) and process assignment rules.
-
-## 8. Practical Interpretation Tips
-
-- Use `monitor_iterations_*.csv` for detailed latency analysis and jitter/outlier detection.
-- Use `monitor_instances_*.csv` to compare load balance between ranks.
-- Use `monitor_summary_*.csv` to compare PE-level hotspots.
-- Use concrete shape JSON/PNG to explain why some ranks do more work.
-
-## 9. Latency Metrics Explained
-
-These columns are computed from per-iteration timings (in seconds):
-
-- `p50_secs`: 50th percentile latency (median). About half of iterations are faster, half are slower.
-- `p95_secs`: 95th percentile latency. 95% of iterations are at or below this value; highlights tail/slower behavior.
-- `max_secs`: maximum observed latency (slowest iteration).
-
-Related columns:
-
-- `min_secs`: minimum observed latency (fastest iteration).
-- `avg_secs`: arithmetic mean latency (can be influenced by outliers).
-
-Quick intuition:
-
-- If `p95_secs` is much larger than `p50_secs`, latency is bursty/has outliers.
-- If `max_secs` is far above `p95_secs`, there may be rare extreme slow iterations.
-
-## Tutorial
-
-Notebook tutorial available at [here](https://colab.research.google.com/drive/1nlwvYh2hBjPuorGAzq2TjbvzD7n5azyS?usp=sharing)
-
-## 11. Notes
-
-- If matplotlib is unavailable or incompatible, PNGs may be skipped.
-- JSON and CSV outputs are still generated even when PNGs are skipped.
-- `run_id` is timestamp-based and includes microseconds to avoid collisions between rapid consecutive runs.
-- If you are benchmarking performance, prefer `timed_*` **without** provenance enabled.  
-  Provenance instrumentation adds extra work and may also change multiprocessing behavior/platform scheduling, so wall-clock comparisons can become misleading.
-- If you need both traceability and timings, run `timed_* + provenance`, but treat those timings as provenance-aware operational traces (not clean baseline performance numbers).
+Existing monitoring tutorial (predates the new resource fields):
+[Google Colab tutorial](https://colab.research.google.com/drive/1nlwvYh2hBjPuorGAzq2TjbvzD7n5azyS?usp=sharing).

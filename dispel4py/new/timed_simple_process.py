@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 
 from dispel4py.new import simple_process
 from dispel4py.new.timed_multi_process import (
@@ -27,6 +26,7 @@ from dispel4py.new.timed_multi_process import (
     _load_timing_rows,
     _persist_graph_figure,
     _persist_json,
+    _prepare_monitoring_run,
     _print_abstract_shape,
     _print_concrete_shape,
     _safe_token,
@@ -49,8 +49,9 @@ def parse_args(args, namespace):  # pragma: no cover
 
 
 def process(workflow, inputs, args):
+    args._monitor_mapping = "timed_simple"
     args.timing_run_id = _safe_token(args.timing_run_id or _default_run_id())
-    os.makedirs(args.timing_dir, exist_ok=True)
+    _prepare_monitoring_run(args)
 
     abstract_shape = _capture_abstract_shape(workflow)
     abstract_shape_path = _persist_json(
