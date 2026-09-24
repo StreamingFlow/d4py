@@ -49,6 +49,8 @@ import argparse
 import copy
 import multiprocessing
 import types
+import queue
+import time
 from typing import Any
 
 from dispel4py.new import processor
@@ -60,6 +62,9 @@ from dispel4py.new.processor import (
     GenericWrapper,
     SimpleProcessingPE,
 )
+
+
+RESULT_CALLBACK_SUPPORTED = True
 
 
 def simple_logger(self, msg):
@@ -96,6 +101,11 @@ def parse_args(args, namespace):  # pragma: no cover
 
 
 def process(workflow, inputs, args) -> multiprocessing.Queue:
+    """Execute; optional args.result_callback consumes (pe_id, port, value) live.
+
+    Callback users must not also consume the return queue. Without a callback the
+    historic queue return contract is preserved. Child failures raise RuntimeError.
+    """
     result = None
     processes: dict[Any, range] = {}
     input_mappings: dict = {}
@@ -163,9 +173,10 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
         except (ValueError, RuntimeError):
             ctx = multiprocessing
 
+    callback = getattr(args, "result_callback", None)
     result_queue = None
     try:
-        if args.results:
+        if callback is not None or args.results:
             result_queue = ctx.Queue()
     except AttributeError:
         pass
@@ -197,16 +208,48 @@ def process(workflow, inputs, args) -> multiprocessing.Queue:
         p = ctx.Process(target=_process_worker, args=(wrapper,))
         jobs.append(p)
 
-    for j in jobs:
-        j.start()
-
-    for j in jobs:
-        j.join()
-
-    if result_queue:
-        result_queue.put(STATUS_TERMINATED)
-
-    return result_queue
+    try:
+        for j in jobs:
+            j.start()
+        while any(j.is_alive() for j in jobs):
+            if callback is not None:
+                try:
+                    callback(result_queue.get(timeout=0.05))
+                except queue.Empty:
+                    pass
+            else:
+                time.sleep(0.05)
+            failed = [j for j in jobs if j.exitcode not in (None, 0)]
+            if failed:
+                raise RuntimeError(f"PE worker failed (exit code {failed[0].exitcode})")
+        for j in jobs:
+            j.join()
+        failed = [j for j in jobs if j.exitcode != 0]
+        if failed:
+            raise RuntimeError(f"PE worker failed (exit code {failed[0].exitcode})")
+        if callback is not None:
+            # Exited workers have flushed their queue feeder threads.
+            while True:
+                try:
+                    callback(result_queue.get_nowait())
+                except queue.Empty:
+                    break
+            return None
+        if result_queue is not None:
+            result_queue.put(STATUS_TERMINATED)
+        return result_queue
+    finally:
+        for j in jobs:
+            if j.is_alive():
+                j.terminate()
+        for j in jobs:
+            if j.pid is not None:
+                j.join()
+        for q in queues.values():
+            q.close()
+        if callback is not None and result_queue is not None:
+            result_queue.close()
+            result_queue.join_thread()
 
 
 class MultiProcessingWrapper(GenericWrapper):
